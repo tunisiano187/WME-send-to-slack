@@ -85,7 +85,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.07.24.02': 'updates from Github directly except for depedencies',
     '2020.07.24.03': 'en language included again as default.',
     '2020.07.26.01': 'Script seems not updating for some people trying to force the update',
-    '2020.07.27.01': 'Activation of the nl translation'
+    '2020.07.27.01': 'Activation of the nl translation',
+    '2020.07.27.02': 'Show language missing only once for each updates'
 };
 
 var $_GET = {};
@@ -227,7 +228,12 @@ async function localization () {
 				console.log("Error while calling 'requestTranslations' function");
 			}
 		}else if (!(suppLngs.includes(I18n.locale))) {
-			WazeWrap.Alerts.warning(ScriptName, 'This language is not yet supported, loading default. Do you want a translation? ask your community, or send a request to wmests@fire.fundersclub.com with a gmail account to became localizator. Missing locale is: ' + I18n.locale)
+            if (localStorage.getItem('WMESTSlangalert') === ScriptVersion && 'WMESTSlangalert' in localStorage) {
+                log('Alert already sent with this version')
+            } else {
+                WazeWrap.Alerts.warning(ScriptName, 'This language is not yet supported, loading default. Do you want a translation? ask your community, or send a request to wmests@fire.fundersclub.com with a gmail account to became localizator. Missing locale is: ' + I18n.locale)
+                localStorage.setItem('WMESTSlangalert', ScriptVersion);
+            }
 			log("Loading default locale")
 			try {
 				const waiting = await requestTranslations(sheetName)//Modify and ask for local storage before call the request
