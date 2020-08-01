@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.07.27.02
+// @version         2020.08.01.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -86,20 +86,9 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.07.24.03': 'en language included again as default.',
     '2020.07.26.01': 'Script seems not updating for some people trying to force the update',
     '2020.07.27.01': 'Activation of the nl translation',
-    '2020.07.27.02': 'Show language missing only once for each updates'
+    '2020.07.27.02': 'Show language missing only once for each updates',
+    '2020.08.01.01': 'AutoLock level enhacements'
 };
-
-var $_GET = {};
-
-document.location.search.replace(/\??(?:([^=]+)=([^&]*)&?)/g, function () {
-    function decode(s) {
-        return decodeURIComponent(s.split("+").join(" "));
-    }
-
-    $_GET[decode(arguments[1])] = decode(arguments[2]);
-});
-
-
 
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -112,6 +101,8 @@ var neededparams = {
     WMESTSServer: "",
 };
 var translationsInfo = []
+let wmeGETparams = new URLSearchParams(document.location.search.substring(1));
+let wmeStsTo = wmeGETparams.get('wmeststo')
 //KILL SWITCH
 var abort = false;
 
@@ -161,11 +152,6 @@ function init(e) {
                         $( "#WMESTSvalidation" ).remove();
                         $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
                         log('Validation icon added');
-                        if($_GET['wmeststo']) {
-                            $value=$_GET['wmeststo']-1;
-                            $link='input[type=radio][name=lockRank][value=' + $value + ']';
-                            $($link).click();
-                        }
                         Loadactions();
                     }
                     if (closureslistDiv) {
@@ -181,12 +167,23 @@ function init(e) {
             }
         });
     });
+    if (wmeStsTo != null) {//Check if it's a PL open
+      autoLockClick();
+      //Tab not loading correctly[BUG]
+    }
     WMESTSObserver.observe(document.getElementById('edit-panel'), { childList: true, subtree: true });
     setTimeout(VersionCheck(),2000);
     $('#WSTSFS-Container').css('display', 'block');
 }
 
 // Functions used by the Script
+
+//Auto Lock Change
+function autoLockClick (){
+      var levelTo = String(wmeStsTo-1);
+      let wmeLockLvl='input[type=radio][name=lockRank][value=' + levelTo + ']';
+      $(wmeLockLvl).click();
+}
 
 // Get browser language and load translations
 async function localization () {
