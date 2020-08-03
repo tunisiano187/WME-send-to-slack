@@ -4,7 +4,7 @@ daysUntilStale: 15
 daysUntilClose: 15
 # Issues with these labels will never be considered stale
 exemptLabels:
-  - feature
+  - enhancement
   - pinned
   - security
 # Label to use when marking an issue as stale
