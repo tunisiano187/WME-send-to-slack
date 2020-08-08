@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.08.08.01
+// @version         2020.08.08.02
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -89,7 +89,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.07.27.02': 'Show language missing only once for each updates',
     '2020.08.01.01': 'AutoLock level enhacements',
     '2020.08.03.01': 'Updating chanel settings for Germany',
-    '2020.08.08.01': 'Use Greasyfork as the new source'
+    '2020.08.08.01': 'Use Greasyfork as the new source',
+    '2020.08.08.02': 'Use unocode for Discord'
 };
 
 // Var declaration
@@ -518,10 +519,29 @@ ${closureTelegramDetails}${telegramDetails}`;
                         });
                     } else if (key.toLowerCase() == "discord")
                     {
+                        var discrordreplaceto = {
+                            N1: "①",
+                            N2: "②",
+                            N3: "③",
+                            N4: "④",
+                            N5: "⑤",
+                            N6: "⑥",
+                            L1: "①",
+                            L2: "②",
+                            L3: "③",
+                            L4: "④",
+                            L5: "⑤",
+                            L6: "⑥",
+                            ":": "*"
+                        };
+                        var discrordreplacefrom = new RegExp(Object.keys(discrordreplaceto).join("|"), "gi");
                         $.ajax({
                             data: 'payload=' + JSON.stringify({
                                 "attachments": [{
-                                    "text": TextToSend}],
+                                    "text": TextToSend.replace(discrordreplacefrom, function(matched) {
+                                        return discrordreplaceto[matched]
+                                    })
+                                }],
                                 "username": ScriptName + " " + GM_info.script.version,
                                 "mrkdwn": true,
                                 "channel": serverDB[localStorage.getItem('WMESTSServer')][key]["chanel_" + chanel],
