@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.08.03.01
+// @version         2020.08.08.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -20,7 +20,7 @@
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@6530ca99a5b8adfcf43d70b3d6de7031605d96b2/WMESTSData.user.js
 // @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
-// @updateURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
+// @updateURL	    https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
@@ -88,7 +88,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.07.27.01': 'Activation of the nl translation',
     '2020.07.27.02': 'Show language missing only once for each updates',
     '2020.08.01.01': 'AutoLock level enhacements',
-    '2020.08.03.01': 'Updating chanel settings for Germany'
+    '2020.08.03.01': 'Updating chanel settings for Germany',
+    '2020.08.08.01': 'Use Greasyfork as the new source'
 };
 
 // Var declaration
