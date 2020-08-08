@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.08.08.02
+// @version         2020.08.08.03
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -90,7 +90,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.08.01.01': 'AutoLock level enhacements',
     '2020.08.03.01': 'Updating chanel settings for Germany',
     '2020.08.08.01': 'Use Greasyfork as the new source',
-    '2020.08.08.02': 'Use unocode for Discord'
+    '2020.08.08.02': 'Use unocode for Discord',
+    '2020.08.08.03': 'Support for restricted areas added'
 };
 
 // Var declaration
@@ -855,6 +856,11 @@ function getPermalinkCleaned(iconaction) {
             selectiontype="&railroadCrossings=";
             texttype="Railroad Crossing";
             textTypeLoc = translationsInfo[27][0]
+        }
+        else if(section.model.type == "restrictedDrivingArea"){
+            selectiontype="&restrictedDrivingAreas=";
+            texttype="Restricted Area";
+            textTypeLoc = translationsInfo[37][0];
         }
         else if(section.model.type !== 'venue')
         {
