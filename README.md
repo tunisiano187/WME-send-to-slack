@@ -8,6 +8,7 @@ Check here : https://wmests.bowlman.org
 
 ## What does this script do?
 It sends requests to Lock, Downlock, Close, Open, and Validate segments directly from WME to a communication platform
+
 At this moment, the requests can be sent to Slack, Discord, Telegram, and a GForm.
 
 ## What's new ?
@@ -19,11 +20,14 @@ At this moment, the requests can be sent to Slack, Discord, Telegram, and a GFor
 
 ## Installation
 The script works best with browsers Brave, Chrome, Firefox (not with Internet explorer or Edge). I recommend Brave
+
 Like most of the scripts used by Waze editors, it needs a script manager like Tampermonkey 
+
 Then, install the latest version
 
 ## How to use
 First, select the country, state, and channel in settings. You can find it on the tab with the colored wheel in the left menu. If you don't see the colored wheel, reload the page with WME open.
+
 After selecting one or more segments, you'll see some extra icons:
 
 ### Validation
@@ -44,15 +48,19 @@ If you want your country to be added to the script, fill out this [Google Form](
 ## How to send bugs or features?
 
 If you have a new feature request, check [this page](https://github.com/tunisiano187/WME-send-to-slack/issues) to see if it isn't already in the list
+
 If your request isn't in the list or if it's a bug, you can submit it [here](https://github.com/tunisiano187/WME-send-to-slack/issues/new/choose)
 
 ## I accept donations ;-)
 Donate [Here](http://ko-fi.com/tunisiano)
+
 Via [Patreon](https://www.patreon.com/bePatron?u=39585820)
+
 Or for free by using [Brave](https://brave.com/?ref=bow320) with rewards and automatic contribution activated
 
 ## Contact?
 Join us on [tunisiano's Discord](https://discord.gg/RqRCGS3)
+
 Or go to the [Dev/beta Discord Server](https://discord.gg/JWEMXwF)
  
 New informations here : https://wmests.bowlman.org
