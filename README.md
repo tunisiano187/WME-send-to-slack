@@ -6,71 +6,55 @@
 ## Current Version of the script ##
 Check here : https://wmests.bowlman.org
 
-## What's doing this script ? ##
+## What does this script do?
+It sends requests to Lock, Downlock, Close, Open, and Validate segments directly from WME to a communication platform
+At this moment, the requests can be sent to Slack, Discord, Telegram, and a GForm.
 
-It's more easy to send requests about Lock, Downlock, Closure, Openning, and Validation of changes
-The requests are sent from the WME to a webhook in Slack or Discord or even to a Telegram group chat.
-The requests can be sent to a GForm too (currently only with the sames fields we have in BeLux) (Currently broken)
-Thanks to that and to Bertzzz's , we've got a spreadsheet that helps to promotion decision on L1-L3 levels.
-Thanks to santyg2001, we've added Telegram bot support for sending messages.
+## What's new ?
+* This script currently supports 20 countries and is continuously growing
+* This script now includes Restricted areas.
+* This script now supports States (USA added)
+* This script now supports Telegram (thanks to santyg2001)
+* Sending to a GForm helps promotion decisions at L1-L3 (thanks to BertZZZZ)
 
-## What's New ##
-This script now supports States, and i've added the USA NewYork, New Jersay, ...
-This script now supports Telegram.
-This script now supports translations.
+## Installation
+The script works best with browsers Brave, Chrome, Firefox (not with Internet explorer or Edge). I recommend Brave
+Like most of the scripts used by Waze editors, it needs a script manager like Tampermonkey 
+Then, install the latest version
 
-## What does it looks like ? ##
+## How to use
+First, select the country, state, and channel in settings. You can find it on the tab with the colored wheel in the left menu. If you don't see the colored wheel, reload the page with WME open.
+After selecting one or more segments, you'll see some extra icons:
+
+### Validation
+The Validation link is on top of the left column just above the settings tab
+
+### Lock / Downlock
+The Lock and Downlock links are below the locking option in the general menu
+
+### Close / Open
+The Closure and Open links are on the Closure Tab. You need to enable the closure layer to view them
+
+### Restricted areas?
+The restricted areas are now supported
+
+## About the script 
+If you want your country to be added to the script, fill out this [Google Form](https://forms.gle/gjWajvFdXu3kRwoS8)
+
+## How to send bugs or features?
+
+If you have a new feature request, check [this page](https://github.com/tunisiano187/WME-send-to-slack/issues) to see if it isn't already in the list
+If your request isn't in the list or if it's a bug, you can submit it [here](https://github.com/tunisiano187/WME-send-to-slack/issues/new/choose)
+
+## I accept donations ;-)
+Donate [Here](http://ko-fi.com/tunisiano)
+Via [Patreon](https://www.patreon.com/bePatron?u=39585820)
+Or for free by using [Brave](https://brave.com/?ref=bow320) with rewards and automatic contribution activated
+
+## Contact?
+Join us on [tunisiano's Discord](https://discord.gg/RqRCGS3)
+Or go to the [Dev/beta Discord Server](https://discord.gg/JWEMXwF)
  
-The Validation link is on top of the Left collumn just above the settings tab
-
-![Img](https://api.tipeee.com/cache/20191024193712/media/1753052/201910245db1e147f3dca.png)
-
-The Lock and Downlock links are below the locking choice in the général tab
-
-![Img](https://api.tipeee.com/cache/20191024193952/media/1753054/201910245db1e1e8436ad.png)
-
-The Closure and Open links are ...? In the Closure Tab just above the Closure tab.
-   Just one thing, this part only shows if the closure layer is set
-
-![Img](https://api.tipeee.com/cache/20191024194111/media/1753058/201910245db1e237a2538.png)
-
-## How can i use it ? ##
-
-Like most of the scripts used by Waze editors, you need to install 
-A browser, but beeing here, i assume that's already the case...(Not Internet explorer or Edge)
-Tampermonkey extention
-The script itself... 
-https://wmests.bowlman.org/script/WME-send-to-slack.user.js
-
-## What's different whith the old one ? ##
-
-- rewrited completely the script
-- fixed some of the bugs
-- moved the icons
-- added a setting tab when a venue, segment, camera, JB, ... is selected
-- added the ability to add more Countries on Slack/Discord
-- updated the GForm submition
-- the script source code is now in clear text except for one dependency
-- Added the support of Railroad crossings
-- Added support for Telegram
-
-## How to add a Country/Community ? ##
-
-if you're using Slack, Discord or Telegram, just complete this GForm : https://forms.gle/gjWajvFdXu3kRwoS8
-
-For another plateform, Request the feature by submitting it (Eplained bellow)
-
-## Is the old one stil working ##
-
-The old one isn't supported anymore, and it should update automatically to this version after some updates
-
-## How to send bugs or features ? ##
-
-Just go on this page (you'll need to create an account), and submit a Bug or feature : https://github.com/tunisiano187/WME-send-to-slack/issues
-You need to complete the request by completing every question.
-
-See you later for New things...
-
 New informations here : https://wmests.bowlman.org
 ## Contributors ✨
 
