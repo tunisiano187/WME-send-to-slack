@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.08.08.03
+// @version         2020.08.11.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -91,7 +91,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.08.03.01': 'Updating chanel settings for Germany',
     '2020.08.08.01': 'Use Greasyfork as the new source',
     '2020.08.08.02': 'Use unocode for Discord',
-    '2020.08.08.03': 'Support for restricted areas added'
+    '2020.08.08.03': 'Support for restricted areas added',
+    '2020.08.11.01': 'On click, load the script later if a segment is selected'
 };
 
 // Var declaration
@@ -126,12 +127,18 @@ var sent=0;
 // Initialization
 function init(e) {
     log("Load");
-    if (typeof W === 'undefined' || typeof W.map === 'undefined' || typeof W.prefs === 'undefined' || typeof W.app.modeController === 'undefined' || document.getElementById('edit-panel') === null || WazeWrap.Ready != true) {
+    if (typeof W === 'undefined' || typeof W.map === 'undefined' || typeof W.prefs === 'undefined' || typeof W.app.modeController === 'undefined' || document.getElementById('edit-panel') === null || WazeWrap.Ready != true || (window.location.href.indexOf("segment") > -1 && document.getElementById('unpavedCheckbox') === null)) {
         setTimeout(init, 800);
         log("Map is still loading so we'll wait");
         return;
     }
     log('WME chargé');
+    if(window.location.href.indexOf("segment") > -1) {
+        $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
+        $( "#WMESTSvalidation" ).remove();
+        $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+        Loadactions()
+    }
 
     //Loading translations
     localization()
