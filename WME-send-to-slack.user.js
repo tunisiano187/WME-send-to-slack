@@ -124,12 +124,18 @@ var sent=0;
 // Initialization
 function init(e) {
     log("Load");
-    if (typeof W === 'undefined' || typeof W.map === 'undefined' || typeof W.prefs === 'undefined' || typeof W.app.modeController === 'undefined' || document.getElementById('edit-panel') === null || WazeWrap.Ready != true) {
+    if (typeof W === 'undefined' || typeof W.map === 'undefined' || typeof W.prefs === 'undefined' || typeof W.app.modeController === 'undefined' || document.getElementById('edit-panel') === null || WazeWrap.Ready != true || (window.location.href.indexOf("segment") > -1 && document.getElementById('unpavedCheckbox') === null) {
         setTimeout(init, 800);
         log("Map is still loading so we'll wait");
         return;
     }
     log('WME chargé');
+    if(window.location.href.indexOf("segment") > -1) {	
+        $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');	
+        $( "#WMESTSvalidation" ).remove();	
+        $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');	
+        Loadactions()	
+    }
 
     //Loading translations
     localization()
