@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.08.20.02
+// @version         2020.08.20.03
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -94,7 +94,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.08.08.03': 'Support for restricted areas added',
     '2020.08.11.01': 'On click, load the script later if a segment is selected',
     '2020.08.15.01': 'Limit replacement for discord',
-    '2020.08.20.02': 'Discord replacement update'
+    '2020.08.20.03': 'Discord replacement update'
 };
 
 // Var declaration
@@ -472,7 +472,7 @@ function Construct(iconaction) {
     }
     var profileurl="https://www.waze.com/user/editor/"
     var userRank = WazeWrap.User.Rank();
-    var TextToSend = ':' + translationsInfo[11][0] + RequiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(profileurl) + W.loginManager.user.userName + "|" + W.loginManager.user.userName + "> (*" + translationsInfo[11][0] + userRank + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
+    var TextToSend = ':' + translationsInfo[11][0] + RequiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(profileurl) + W.loginManager.user.userName + "|" + W.loginManager.user.userName + "> (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
     var TexToSendTelegramMD = `${translationsInfo[11][0]}${RequiredLevel} *${translationsInfo[10][0]}:* [${W.loginManager.user.userName}](www.waze.com/user/editor/${W.loginManager.user.userName}) (*${userRank}*)
 *${translationsInfo[12][0]} :* [${textSelection}](${permalink})
 *${translationsInfo[13][0]} :* ${iconactionlocale}
