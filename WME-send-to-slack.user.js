@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.08.20.01
+// @version         2020.08.20.02
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -94,7 +94,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.08.08.03': 'Support for restricted areas added',
     '2020.08.11.01': 'On click, load the script later if a segment is selected',
     '2020.08.15.01': 'Limit replacement for discord',
-    '2020.08.20.01': 'Discord replacement update'
+    '2020.08.20.02': 'Discord replacement update'
 };
 
 // Var declaration
@@ -535,7 +535,25 @@ ${closureTelegramDetails}${telegramDetails}`;
                             ":L3:": "③",
                             ":L4:": "④",
                             ":L5:": "⑤",
-                            ":L6:": "⑥"
+                            ":L6:": "⑥",
+                            ":N1:": "①",
+                            ":N2:": "②",
+                            ":N3:": "③",
+                            ":N4:": "④",
+                            ":N5:": "⑤",
+                            ":N6:": "⑥",
+                            "(L1)": "①",
+                            "(L2)": "②",
+                            "(L3)": "③",
+                            "(L4)": "④",
+                            "(L5)": "⑤",
+                            "(L6)": "⑥",
+                            "(N1)": "①",
+                            "(N2)": "②",
+                            "(N3)": "③",
+                            "(N4)": "④",
+                            "(N5)": "⑤",
+                            "(N6)": "⑥"
                         };
                         var discrordreplacefrom = new RegExp(Object.keys(discrordreplaceto).join("|"), "gi");
                         $.ajax({
