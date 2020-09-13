@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.09.12.01
+// @version         2020.09.13.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -92,7 +92,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.08.08.01': 'Use Greasyfork as the new source',
     '2020.08.08.02': 'Use unocode for Discord',
     '2020.08.08.03': 'Support for restricted areas added',
-    '2020.09.12.01': 'Solved : Closure button was hidden due to WME update'
+    '2020.09.13.01': 'Solved : Closure button was hidden due to WME update'
 };
 
 // Var declaration
@@ -167,7 +167,7 @@ function init(e) {
                             $('.closures-list').before('<div id="WMESTSclosures">' + closureicon + '&nbsp;' + openicon + '</div>');
                         }
                         if(W.model.roadClosures.getObjectArray().length == 0) {
-                            $('.closures-list-items').hide()
+                            $('.closures-list').height("auto");
                         }
                         Loadactions();
                     }
