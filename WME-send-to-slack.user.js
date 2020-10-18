@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.09.13.02
+// @version         2020.10.16.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -18,7 +18,7 @@
 // @connect         https://cdn.jsdelivr.net/
 // @connect         https://docs.google.com/
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@6530ca99a5b8adfcf43d70b3d6de7031605d96b2/WMESTSData.user.js
+// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@d2e2764c34b811c34bd58b630aab08bdc5fcaeb3/WMESTSData.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
@@ -91,7 +91,9 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.08.08.02': 'Use unocode for Discord',
     '2020.08.08.03': 'Support for restricted areas added',
     '2020.09.13.01': 'Solved : Closure button was hidden due to WME update',
-    '2020.09.13.02': 'Solved : Missing WMESTS icons when openning a PL'
+    '2020.09.17.01': 'Adding Nepal',
+    '2020.09.18.01': 'Data broken',
+    '2020.10.16.01': 'Add Channels for Falcon Map raid'
 };
 
 // Var declaration
