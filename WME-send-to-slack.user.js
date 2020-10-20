@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.10.16.01
+// @version         2020.10.20.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -93,7 +93,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.09.13.01': 'Solved : Closure button was hidden due to WME update',
     '2020.09.17.01': 'Adding Nepal',
     '2020.09.18.01': 'Data broken',
-    '2020.10.16.01': 'Add Channels for Falcon Map raid'
+    '2020.10.16.01': 'Add Channels for Falcon Map raid',
+    '2020.10.20.01': 'Add Venue Name'
 };
 
 // Var declaration
@@ -134,11 +135,11 @@ function init(e) {
         return;
     }
     log('WME chargé');
-    if(window.location.href.indexOf("segment") > -1) {		
-        $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');		
-        $( "#WMESTSvalidation" ).remove();		
-        $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');		
-        Loadactions()		
+    if(window.location.href.indexOf("segment") > -1) {
+        $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
+        $( "#WMESTSvalidation" ).remove();
+        $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+        Loadactions()
     }
 
     //Loading translations
@@ -827,7 +828,7 @@ function getPermalinkCleaned(iconaction) {
     text = "https://www.waze.com/editor?env=" + W.app.getAppRegionCode() + "&";
     var count = 0;
     var texttype = "venue"
-    var textTypeLoc = translationsInfo[23][0];//"venue"
+    var textTypeLoc = translationsInfo[23][0] + " : " + W.selectionManager.getSelectedFeatures()[0].model.attributes.name; //"venue"
     var CityName = "";
     var CountryName = "";
     var StateName = "";
@@ -877,7 +878,7 @@ function getPermalinkCleaned(iconaction) {
         {
             selectiontype="&segments=";
             texttype="segment";
-            textTypeLoc = translationsInfo[28][0]
+            textTypeLoc = translationsInfo[28][0];
             ShouldBeLockedAt = getShouldLockedAt(section, ShouldBeLockedAt)
         }
         count++;
