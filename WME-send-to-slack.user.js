@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2020.10.20.01
+// @version         2021.01.07.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -94,7 +94,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.09.17.01': 'Adding Nepal',
     '2020.09.18.01': 'Data broken',
     '2020.10.16.01': 'Add Channels for Falcon Map raid',
-    '2020.10.20.01': 'Add Venue Name'
+    '2020.10.20.01': 'Add Venue Name',
+    '2021.01.07.01': 'Solve closure tab problem'
 };
 
 // Var declaration
@@ -173,6 +174,7 @@ function init(e) {
                         $( "#WMESTSclosures" ).remove();
                         if(W.layerSwitcherController.checkboxState.attributes.ITEM_CLOSURES === true) {
                             $('.closures-list').before('<div id="WMESTSclosures">' + closureicon + '&nbsp;' + openicon + '</div>');
+                            $('.closures-list').height("auto");
                         }
                         if(W.model.roadClosures.getObjectArray().length == 0) {
                             $('.closures-list').height("auto");
