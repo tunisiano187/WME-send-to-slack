@@ -18,7 +18,9 @@
 // @connect         https://cdn.jsdelivr.net/
 // @connect         https://docs.google.com/
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@d2e2764c34b811c34bd58b630aab08bdc5fcaeb3/WMESTSData.user.js
+// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@405bafe248a7ef74b29f09a95da5caa2ab4f9e83/WMESTSData.user.js
+// @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
+// @updateURL	    https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
@@ -95,6 +97,9 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.09.18.01': 'Data broken',
     '2020.10.16.01': 'Add Channels for Falcon Map raid',
     '2020.10.20.01': 'Add Venue Name',
+    '2020.11.02.01': 'FR server and DE channel updates',
+    '2020.11.03.01': 'France Closure webhook',
+    '2020.12.06.01': 'Falcon Map Raid removal'
     '2021.01.07.01': 'Solve closure tab problem'
 };
 
