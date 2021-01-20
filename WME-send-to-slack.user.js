@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2021.01.07.01
+// @version         2021.01.20.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -18,7 +18,7 @@
 // @connect         https://cdn.jsdelivr.net/
 // @connect         https://docs.google.com/
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@405bafe248a7ef74b29f09a95da5caa2ab4f9e83/WMESTSData.user.js
+// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@b2e01a6306989c08eb14e66d8ce5f84c4f0f6d0a/WMESTSData.user.js
 // @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
 // @updateURL	    https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
@@ -100,7 +100,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.11.02.01': 'FR server and DE channel updates',
     '2020.11.03.01': 'France Closure webhook',
     '2020.12.06.01': 'Falcon Map Raid removal'
-    '2021.01.07.01': 'Solve closure tab problem'
+    '2021.01.07.01': 'Solve closure tab problem',
+    '2021.01.20.01': 'Telegram Columbia',
 };
 
 // Var declaration
