@@ -99,7 +99,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.10.20.01': 'Add Venue Name',
     '2020.11.02.01': 'FR server and DE channel updates',
     '2020.11.03.01': 'France Closure webhook',
-    '2020.12.06.01': 'Falcon Map Raid removal'
+    '2020.12.06.01': 'Falcon Map Raid removal',
     '2021.01.07.01': 'Solve closure tab problem',
     '2021.01.20.01': 'Telegram Columbia',
     '2021.02.19.01': 'Quick fix for the latest WME version.'
