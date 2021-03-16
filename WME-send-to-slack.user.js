@@ -18,14 +18,12 @@
 // @connect         https://cdn.jsdelivr.net/
 // @connect         https://docs.google.com/
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@b2e01a6306989c08eb14e66d8ce5f84c4f0f6d0a/WMESTSData.user.js
-// @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
-// @updateURL	    https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
+// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@327c2404d3281aabae2d7bf9cfbbd932d4749a38/WMESTSData.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
 // ==/UserScript==
-
+ 
 // Updates informations
 var UpdateNotes = "";
 const _WHATS_NEW_LIST = { // New in this version
@@ -101,10 +99,10 @@ const _WHATS_NEW_LIST = { // New in this version
     '2020.11.03.01': 'France Closure webhook',
     '2020.12.06.01': 'Falcon Map Raid removal',
     '2021.01.07.01': 'Solve closure tab problem',
-    '2021.01.20.01': 'Telegram Columbia',
-    '2021.02.19.01': 'Quick fix for the latest WME version.'
+    '2021.01.20.01': 'Telegram for Columbia',
+    '2021.02.19.01': 'Quick fix for lastest WME version',
+    '2021.03.16.01': 'Add italian language, thanks to bedo2991'
 };
-
 // Var declaration
 var ScriptName = GM_info.script.name;
 var ScriptVersion = GM_info.script.version;
