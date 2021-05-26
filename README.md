@@ -1,6 +1,6 @@
 [![Open Source Helpers](https://www.codetriage.com/tunisiano187/wme-send-to-slack/badges/users.svg)](https://www.codetriage.com/tunisiano187/wme-send-to-slack) [![Gitter](https://badges.gitter.im/Tunisiano18/community.svg)](https://gitter.im/Tunisiano18/community?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge) [![CodeFactor](https://www.codefactor.io/repository/github/tunisiano187/wme-send-to-slack/badge)](https://www.codefactor.io/repository/github/tunisiano187/wme-send-to-slack)[![codecov](https://codecov.io/gh/tunisiano187/WME-send-to-slack/branch/beta/graph/badge.svg?token=gvyCs8IUtB)](https://codecov.io/gh/tunisiano187/WME-send-to-slack)
 <!-- ALL-CONTRIBUTORS-BADGE:START - Do not remove or modify this section -->
-[![All Contributors](https://img.shields.io/badge/all_contributors-1-orange.svg?style=flat-square)](#contributors-)
+[![All Contributors](https://img.shields.io/badge/all_contributors-3-orange.svg?style=flat-square)](#contributors-)
 <!-- ALL-CONTRIBUTORS-BADGE:END -->
 
 ## Current Version of the script ##
@@ -67,13 +67,15 @@ Thanks goes to these wonderful people ([emoji key](https://allcontributors.org/d
 <!-- markdownlint-disable -->
 <table>
   <tr>
-    <td align="center"><a href="https://github.com/ordonezgs"><img src="https://avatars3.githubusercontent.com/u/17103864?v=4" width="100px;" alt=""/><br /><sub><b>ordonezgs</b></sub></a><br /><a href="https://github.com/tunisiano187/WME-send-to-slack/commits?author=ordonezgs" title="Code">💻</a></td>
-    <td align="center"><a href="https://www.bowlman.org"><img src="https://avatars2.githubusercontent.com/u/6095739?v=4" width="100px;" alt=""/><br /><sub><b>Tunisiano18</b></sub></a><br /><a href="https://github.com/tunisiano187/WME-send-to-slack/commits?author=tunisiano187" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/ordonezgs"><img src="https://avatars3.githubusercontent.com/u/17103864?v=4?s=100" width="100px;" alt=""/><br /><sub><b>ordonezgs</b></sub></a><br /><a href="https://github.com/tunisiano187/WME-send-to-slack/commits?author=ordonezgs" title="Code">💻</a></td>
+    <td align="center"><a href="https://www.bowlman.org"><img src="https://avatars2.githubusercontent.com/u/6095739?v=4?s=100" width="100px;" alt=""/><br /><sub><b>Tunisiano18</b></sub></a><br /><a href="https://github.com/tunisiano187/WME-send-to-slack/commits?author=tunisiano187" title="Code">💻</a></td>
+    <td align="center"><a href="https://github.com/yvesdm"><img src="https://avatars.githubusercontent.com/u/1426956?v=4?s=100" width="100px;" alt=""/><br /><sub><b>yvesdm</b></sub></a><br /><a href="https://github.com/tunisiano187/WME-send-to-slack/commits?author=yvesdm" title="Code">💻</a></td>
   </tr>
 </table>
 
-<!-- markdownlint-enable -->
+<!-- markdownlint-restore -->
 <!-- prettier-ignore-end -->
+
 <!-- ALL-CONTRIBUTORS-LIST:END -->
 
 This project follows the [all-contributors](https://github.com/all-contributors/all-contributors) specification. Contributions of any kind welcome!
