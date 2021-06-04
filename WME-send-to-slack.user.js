@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2021.05.25.01
+// @version         2021.06.04.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -104,7 +104,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2021.01.20.01': 'Telegram for Columbia',
     '2021.02.19.01': 'Quick fix for lastest WME version',
     '2021.03.16.01': 'Add italian language, thanks to bedo2991',
-    '2021.05.25.01': 'bug #71 translationsInfo[19] is undefined fixed by yvesdm'
+    '2021.05.25.01': 'bug #71 translationsInfo[19] is undefined fixed by yvesdm',
+    '2021.06.04.01': 'Add Polska thanks to FalconTech'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
