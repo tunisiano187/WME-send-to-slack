@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2021.03.16.01
+// @version         2021.05.25.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -20,12 +20,12 @@
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@327c2404d3281aabae2d7bf9cfbbd932d4749a38/WMESTSData.user.js
 // @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
-// @updateURL	    https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
+// @updateURL	      https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
 // ==/UserScript==
-
+ 
 // Updates informations
 var UpdateNotes = "";
 const _WHATS_NEW_LIST = { // New in this version
@@ -103,9 +103,9 @@ const _WHATS_NEW_LIST = { // New in this version
     '2021.01.07.01': 'Solve closure tab problem',
     '2021.01.20.01': 'Telegram for Columbia',
     '2021.02.19.01': 'Quick fix for lastest WME version',
-    '2021.03.16.01': 'Add italian language, thnks to bedo2991'
+    '2021.03.16.01': 'Add italian language, thanks to bedo2991',
+    '2021.05.25.01': 'bug #71 translationsInfo[19] is undefined fixed by yvesdm'
 };
-
 // Var declaration
 var ScriptName = GM_info.script.name;
 var ScriptVersion = GM_info.script.version;
@@ -144,15 +144,15 @@ function init(e) {
         return;
     }
     log('WME chargé');
-    if(window.location.href.indexOf("segment") > -1) {
-        $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
-        $( "#WMESTSvalidation" ).remove();
-        $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
-        Loadactions()
-    }
-
     //Loading translations
-    localization()
+    localization().then(() =>{
+        if(window.location.href.indexOf("segment") > -1) {
+            $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
+            $( "#WMESTSvalidation" ).remove();
+            $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+            Loadactions()
+        }
+    })
 
     // On change, check for changes in the edit-panel
     var WMESTSObserver = new MutationObserver(function(mutations) {
