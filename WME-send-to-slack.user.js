@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.02.13.01
+// @version         2022.02.14.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -18,7 +18,7 @@
 // @connect         https://cdn.jsdelivr.net/
 // @connect         https://docs.google.com/
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@9382c95f25f2520d4506a23a89ea2dd70c036e06/WMESTSData.user.js
+// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@7b0bd35f55b79de562c997c04064ead318fa05f1/WMESTSData.user.js
 // @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
 // @updateURL	      https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
@@ -107,7 +107,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2021.05.25.01': 'bug #71 translationsInfo[19] is undefined fixed by yvesdm',
     '2021.06.04.01': 'Add Polska thanks to FalconTech',
     '2021.08.26.01': 'Solve Zoom problem',
-    '2022.02.13.01': 'Update Pakistan server'
+    '2022.02.14.01': 'Update Pakistan server'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
