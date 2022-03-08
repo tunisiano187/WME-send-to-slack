@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.03.06.02
+// @version         2022.03.08.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -18,7 +18,7 @@
 // @connect         https://cdn.jsdelivr.net/
 // @connect         https://docs.google.com/
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
-// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@3df958c0428278b11aee50212b8ba78c03bc4550/WMESTSData.user.js
+// @require         https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack@a19f76f6649775cf721006f26dc4fc064f144d50/WMESTSData.user.js
 // @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
 // @updateURL	      https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @supportURL      mailto:wmests@fire.fundersclub.com
@@ -111,7 +111,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2022.02.14.04': 'Update Pakistan server config',
     '2202.02.22.01': 'Adding Yemen',
     '2002.03.06.01': 'Correction test for Yemen and Germany discord first 2',
-    '2022.03.06.02': 'Yemen solution'
+    '2022.03.06.02': 'Yemen solution',
+    '2022.03.08.01': 'Germany completion'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
