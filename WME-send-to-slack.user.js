@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.03.28.01
+// @version         2022.05.04.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -16,7 +16,7 @@
 // @compatible      opera
 // @compatible      brave
 // @connect         https://cdn.jsdelivr.net/
-// @connect         https://docs.google.com/
+// @connect         googleapis.com
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
 // @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
@@ -24,6 +24,7 @@
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
+// @grant           GM_xmlhttpRequest
 // ==/UserScript==
  
 // Updates informations
@@ -113,7 +114,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2002.03.06.01': 'Correction test for Yemen and Germany discord first 2',
     '2022.03.06.02': 'Yemen solution',
     '2022.03.08.01': 'Germany completion',
-    '2022.03.28.01': 'Nederland-closure chanel'
+    '2022.03.28.01': 'Nederland-closure chanel',
+    '2022.05.04.01': 'Fixing up Strings error for Wme Beta.'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -213,6 +215,23 @@ function init(e) {
 
 // Functions used by the Script
 
+//Make HTTP Requests
+function makeHTTPRequest(type, url) {
+    return new Promise((resolve, reject) => {
+      GM_xmlhttpRequest({
+        method: type,
+        url: url,
+        headers: {"Referer": document.location.href},
+        onload: function(response) {
+          resolve(JSON.parse(response.response));
+        },
+        onerror: function(error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
 //Auto Lock Change
 function autoLockClick (){
       var levelTo = String(wmeStsTo-1);
@@ -227,26 +246,48 @@ async function localization () {
 		const cons_connect_one = sheetsAPI.link + sheetsAPI.sheet + "/values/"
 		const cons_connect_two = "!" + sheetsAPI.range + "?key=" + sheetsAPI.key
 		var statusSheetsCallback = false
-		await $.get(cons_connect_one + i18n + cons_connect_two)
+        //Trying to make Beta vs. Prod. Compatibility - HTTP
+        if (location.host == "beta.waze.com"){
+            await makeHTTPRequest('GET', cons_connect_one + sheetName + cons_connect_two)
+            .then( function(response) {
+                $.each( response.values, function( key, val ) {
+            if (!(Array.isArray(val) && val.length)) {
+                translationsInfo.push("Not Translated")
+            } else {
+                translationsInfo.push(val)
+            }
+                });
+                statusSheetsCallback = true;
+                log("Tampermonkey HTTP succeeded");
+            } )
+            .catch(function(response){
+                log( "Tampermonkey HTTP failed!" );
+                console.log(response)
+            });
+        }else{
+            await $.get(cons_connect_one + i18n + cons_connect_two)
 		  .then( function(data) {
 		    $.each( data.values, function( key, val ) {
-          if (!(Array.isArray(val) && val.length)) {
-            translationsInfo.push("Not Translated")
-          } else {
-            translationsInfo.push(val)
-          }
-		  	});
-				statusSheetsCallback = true;
-		    log("$.get succeeded");
-		  } )
-		  .catch( function() {
-		    log( "$.get failed!" );
-		  } );
-		if (statusSheetsCallback) {
-			log('Connected to Google Sheets API')
-		}else if (!statusSheetsCallback){
-			WazeWrap.Alerts.error(ScriptName, 'Cannot connect to Google Sheets API')
-		}
+            if (!(Array.isArray(val) && val.length)) {
+                translationsInfo.push("Not Translated")
+            } else {
+                translationsInfo.push(val)
+            }
+                });
+                    statusSheetsCallback = true;
+                log("$.get succeeded");
+            } )
+            .catch( function() {
+                log( "$.get failed!" );
+            } );
+        }
+        if (statusSheetsCallback) {
+            log('Connected to Google Sheets API')
+        }else if (!statusSheetsCallback){
+            WazeWrap.Alerts.error(ScriptName, 'Cannot connect to Google Sheets API')
+        }
+
+
 	//Closing async f(x)
 	}
 	//Checking if require translations different from any english language
