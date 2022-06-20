@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.05.04.01
+// @version         2022.06.22.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -19,14 +19,12 @@
 // @connect         googleapis.com
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
-// @downloadURL	    https://cdn.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js
-// @updateURL	      https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
 // @grant           GM_xmlhttpRequest
 // ==/UserScript==
- 
+
 // Updates informations
 var UpdateNotes = "";
 const _WHATS_NEW_LIST = { // New in this version
@@ -115,7 +113,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2022.03.06.02': 'Yemen solution',
     '2022.03.08.01': 'Germany completion',
     '2022.03.28.01': 'Nederland-closure chanel',
-    '2022.05.04.01': 'Fixing up Strings error for Wme Beta.'
+    '2022.05.04.01': 'Fixing up Strings error for Wme Beta.',
+    '2022.06.22.01': 'Lock icons weren\'t visible with the last update'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -149,7 +148,7 @@ var sent=0;
 // Initialization
 function init(e) {
     log("Load");
-    if (typeof W === 'undefined' || typeof W.map === 'undefined' || typeof W.prefs === 'undefined' || document.getElementById('edit-panel') === null || WazeWrap.Ready != true || ((window.location.href.indexOf("segment") > -1) && document.getElementById('unpavedCheckbox') === null)) {
+    if (typeof W === 'undefined' || typeof W.map === 'undefined' || typeof W.prefs === 'undefined' || document.getElementById('edit-panel') === null || WazeWrap.Ready != true) {
         setTimeout(init, 800);
         log("Map is still loading so we'll wait");
         return;
@@ -158,7 +157,7 @@ function init(e) {
     //Loading translations
     localization().then(() =>{
         if(window.location.href.indexOf("segment") > -1) {
-            $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
+            $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
             $( "#WMESTSvalidation" ).remove();
             $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
             Loadactions()
