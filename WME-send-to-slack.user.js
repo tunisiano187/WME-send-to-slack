@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.06.22.01
+// @version         2022.06.22.02
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -114,7 +114,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2022.03.08.01': 'Germany completion',
     '2022.03.28.01': 'Nederland-closure chanel',
     '2022.05.04.01': 'Fixing up Strings error for Wme Beta.',
-    '2022.06.22.01': 'Lock icons weren\'t visible with the last update'
+    '2022.06.22.02': 'Fixing lock icons',
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -173,14 +173,14 @@ function init(e) {
 
                 // Only fire up if it's a node
                 if (addedNode.nodeType === Node.ELEMENT_NODE) {
-                    var locklevelDiv = addedNode.querySelector('div.form-control.lock-level-selector.waze-radio-container');
+                    var locklevelDiv = addedNode.querySelector('.lock-edit-view');
                     var closureslistDiv = addedNode.querySelector('div.closures-list');
 
                     if (locklevelDiv) {
                         sent=0;
                         log('Lock icons added');
                         $( "#WMESTSlock" ).remove();
-                        $('div.form-control.lock-level-selector.waze-radio-container').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
+                        $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
                         $( "#WMESTSvalidation" ).remove();
                         $('div.selection.selection-icon').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
                         log('Validation icon added');
