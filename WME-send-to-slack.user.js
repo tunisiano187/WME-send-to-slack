@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.06.23.01
+// @version         2022.06.24.01
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -116,6 +116,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2022.05.04.01': 'Fixing up Strings error for Wme Beta.',
     '2022.06.22.02': 'Fixing lock icons',
     '2022.06.23.01': 'Fixing validation icon',
+	'2022.06.24.01': 'Fixing form validation logic',
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -442,8 +443,9 @@ function Construct(iconaction) {
             if(ShouldbeLockedAt == -1) { ShouldbeLockedAt == 1 }
             Details = prompt(translationsInfo[3][0] + " : ", ShouldbeLockedAt);//"To level"
             telegramDetails = Details;
-            if (Details < -1 || Details > 6) {
+            if (parseInt(Details) < -1 || parseInt(Details) > 6 || isNaN(Details)) {
               log("Invalid Details, nothing sent. Kill Switch Activated.")
+		WazeWrap.Alerts.warning(ScriptName, translationsInfo[38][0]);//Please only enter numbers between -1 and 6 for Lock/Unlock required/request level
               abort = true;
               log("Kill Switch Activated.")
             }
