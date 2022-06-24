@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.06.24.01
+// @version         2022.06.24.02
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -28,95 +28,25 @@
 // Updates informations
 var UpdateNotes = "";
 const _WHATS_NEW_LIST = { // New in this version
-    '2020.01.04.01': "Link username to Waze's user profile",
-    '2020.01.04.02': "char error",
-    '2020.01.28.01': "Added France",
-    '2020.03.06.01': "Added Railroad Crossing support",
-    '2020.03.26.01': "New version of WazeWrap",
-    '2020.04.12.01': "Correction for normalizedRank removal in beta",
-    '2020.04.21.01': "Support for China added",
-    '2020.04.22.01': "Support for Mongolia added",
-    '2020.05.14.01': "Automatic change when lock requested",
-    '2020.05.25.01': 'Adding Afghanistan, Bhutan and Germany',
-    '2020.05.25.02': 'OpenLayers var changed by Waze',
-    '2020.05.30.01': 'Pakistan added',
-    '2020.05.31.01': 'Poland added and update server changed',
-    '2020.05.31.02': 'Changed to Poland Production server',
-    '2020.06.02.01': 'Changing sources locations',
-    '2020.06.11.01': 'Lock requests limited now from -1 to 6. Thanks to @santyg2001',
-    '2020.06.13.01': '1.) Alert the editor while sending the request if he can edit himself.<br />2.)Fixed some bugs.<br />3.) Support for Telegram Added!!! ;-).<br /><br />  <b>Special thanks to @santyg2001 in this update.</b>',
-    '2020.06.13.02': 'Force Datas update',
-    '2020.06.13.03': 'Correction of DB link, sorry for the mistakes',
-    '2020.06.14.01': 'Telegram DB enhacements',
-    '2020.06.14.02': 'Telegram support for Indonesia added',
-    '2020.06.14.03': 'Solve reason trouble',
-    '2020.06.16.02': 'Solve bug',
-    '2020.06.19.01': 'Reason is now mandatory',
-    '2020.06.20.01': 'Use WazeWrap for the Alerts',
-    '2020.06.20.02': 'Adding Brasil - Bahia',
-    '2020.06.21.01': 'Update support links',
-    '2020.06.22.01': 'Alert on unsaved object',
-    '2020.06.22.02': 'Solved a small error',
-    '2020.06.26.01': 'Solve issue #13 After cancel, the script stop working',
-    '2020.06.26.02': 'Solve issue #14, Open requests were sent with L1 and L2 accepted',
-    '2020.06.28.01': 'Solve issue #11, GForm did not receive the level of the editor',
-    '2020.06.29.01': 'Moving the repository for Github bot help',
-    '2020.07.10.01': 'Adding Autralia',
-    '2020.07.10.02': 'Forcing Australia',
-    '2020.07.17.02': 'Translations through Google spreadsheets added. Special thanks to @santyg2001 in this update.',
-    '2020.07.17.03': 'Solve Issue #23, City appears twice on Junction boxes',
-    '2020.07.17.04': 'Typos',
-    '2020.07.17.05': 'Language alert moved to the console',
-    '2020.07.18.02': 'Activating pt-BR as translation',
-    '2020.07.18.03': 'move to jsdelivr.net',
-    '2020.07.18.04': 'Solve localization break and breaking WazeWrap until we have the solution',
-    '2020.07.19.01': 'Some people have the script broken so thisis is a test to solve',
-    '2020.07.19.02': 'cdn seems causing the problem',
-    '2020.07.20.01': 'Add DE Translation',
-    '2020.07.20.02': 'Translation to Default broken',
-    '2020.07.20.04': 'English (UK) issue',
-    '2020.07.20.05': 'Too many alerts',
-    '2020.07.22.01': 'WazeWrap alerts issue solved',
-    '2020.07.22.02': 'Changing deprecated functions',
-    '2020.07.22.03': '#31 Solved',
-    '2020.07.23.01': 'Translations Info fix',
-    '2020.07.24.01': 'escape back',
-    '2020.07.24.02': 'updates from Github directly except for depedencies',
-    '2020.07.24.03': 'en language included again as default.',
-    '2020.07.26.01': 'Script seems not updating for some people trying to force the update',
-    '2020.07.27.01': 'Activation of the nl translation',
-    '2020.07.27.02': 'Show language missing only once for each updates',
-    '2020.08.01.01': 'AutoLock level enhacements',
-    '2020.08.03.01': 'Updating chanel settings for Germany',
-    '2020.08.08.01': 'Use Greasyfork as the new source',
-    '2020.08.08.02': 'Use unocode for Discord',
-    '2020.08.08.03': 'Support for restricted areas added',
-    '2020.09.13.01': 'Solved : Closure button was hidden due to WME update',
-    '2020.09.17.01': 'Adding Nepal',
-    '2020.09.18.01': 'Data broken',
-    '2020.10.16.01': 'Add Channels for Falcon Map raid',
-    '2020.10.20.01': 'Add Venue Name',
-    '2020.11.02.01': 'FR server and DE channel updates',
-    '2020.11.03.01': 'France Closure webhook',
-    '2020.12.06.01': 'Falcon Map Raid removal',
-    '2021.01.07.01': 'Solve closure tab problem',
-    '2021.01.20.01': 'Telegram for Columbia',
-    '2021.02.19.01': 'Quick fix for lastest WME version',
-    '2021.03.16.01': 'Add italian language, thanks to bedo2991',
-    '2021.05.25.01': 'bug #71 translationsInfo[19] is undefined fixed by yvesdm',
-    '2021.06.04.01': 'Add Polska thanks to FalconTech',
-    '2021.08.26.01': 'Solve Zoom problem',
-    '2022.02.14.01': 'Update Pakistan server',
-    '2022.02.14.04': 'Update Pakistan server config',
-    '2202.02.22.01': 'Adding Yemen',
-    '2002.03.06.01': 'Correction test for Yemen and Germany discord first 2',
-    '2022.03.06.02': 'Yemen solution',
-    '2022.03.08.01': 'Germany completion',
-    '2022.03.28.01': 'Nederland-closure chanel',
-    '2022.05.04.01': 'Fixing up Strings error for Wme Beta.',
-    '2022.06.22.02': 'Fixing lock icons',
-    '2022.06.23.01': 'Fixing validation icon',
+	'2021.01.07.01': 'Solve closure tab problem',
+	'2021.01.20.01': 'Telegram for Columbia',
+	'2021.02.19.01': 'Quick fix for lastest WME version',
+	'2021.03.16.01': 'Add italian language, thanks to bedo2991',
+	'2021.05.25.01': 'bug #71 translationsInfo[19] is undefined fixed by yvesdm',
+	'2021.06.04.01': 'Add Polska thanks to FalconTech',
+	'2021.08.26.01': 'Solve Zoom problem',
+	'2022.02.14.01': 'Update Pakistan server',
+	'2022.02.14.04': 'Update Pakistan server config',
+	'2202.02.22.01': 'Adding Yemen',
+	'2002.03.06.01': 'Correction test for Yemen and Germany discord first 2',
+	'2022.03.06.02': 'Yemen solution',
+	'2022.03.08.01': 'Germany completion',
+	'2022.03.28.01': 'Nederland-closure chanel',
+	'2022.05.04.01': 'Fixing up Strings error for Wme Beta.',
+	'2022.06.22.02': 'Fixing lock icons',
+	'2022.06.23.01': 'Fixing validation icon',
 	'2022.06.24.01': 'Fixing form validation logic',
+	'2022.06.24.02': 'Temporary Fix for autolock, and cleaning update logs',
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -206,7 +136,7 @@ function init(e) {
         });
     });
     if (wmeStsTo != null) {//Check if it's a PL open
-      autoLockClick();
+        autoLockClick();
       //Tab not loading correctly[BUG]
     }
     WMESTSObserver.observe(document.getElementById('edit-panel'), { childList: true, subtree: true });
@@ -235,9 +165,17 @@ function makeHTTPRequest(type, url) {
 
 //Auto Lock Change
 function autoLockClick (){
-      var levelTo = String(wmeStsTo-1);
-      let wmeLockLvl='input[type=radio][name=lockRank][value=' + levelTo + ']';
-      $(wmeLockLvl).click();
+    if(document.getElementById('lockRank-4') === null) {
+        setTimeout(autoLockClick, 800);
+        log("Tab is still loading so we'll wait");
+        return;
+    } else {
+        var levelTo = String(wmeStsTo-1);
+        let wmeLockLvl='#lockRank-' + levelTo;
+        log("Click on " + wmeLockLvl);
+        document.getElementById("edit-buttons").style.display = "flex";
+        $(wmeLockLvl).click();
+    }
 }
 
 // Get browser language and load translations
