@@ -817,7 +817,7 @@ function LoadTab() {
 }
 
 // Send easily logs into the console
-function log(message, thisscript = ScriptName) { // Thanks to Glodenox but enhanced
+function log(message, thisscript = ScriptName + '(' + ScriptVersion + '):') { // Thanks to Glodenox but enhanced
     if (typeof message === 'string') {
         console.log('%c' + thisscript + ' : %c' + message, 'color:black', 'color:#d97e00');
     } else {
