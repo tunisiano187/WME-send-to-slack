@@ -742,8 +742,8 @@ function UpdateStates() {
 function LoadTab() {
     if(!$('.slack-settings-tab').length){
         var b = $('<li><a class="slack-settings-tab" data-toggle="tab" href="#segment-edit-settings" aria-expanded="false">' + settingsicon + '</a></li>');
-        $(".tabs-container ul.nav.nav-tabs").append(b);
-        $(".contents .tab-content").append('<div class="tab-pane" id="segment-edit-settings"><div class="settings">Slack</div></div>');
+        $("#user-info .flex-parent #user-tabs .nav-tabs").append(b);
+        $("#user-info .flex-parent .tab-content").append('<div class="tab-pane" id="segment-edit-settings"><div class="settings">Slack</div></div>');
         var countrychoose = document.createElement('select');
         countrychoose.id='WMESTSCountry';
         countrychoose.className='form-control';
