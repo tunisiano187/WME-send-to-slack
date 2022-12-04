@@ -18,7 +18,7 @@
 // @compatible      brave
 // @connect         https://cdn.jsdelivr.net/
 // @connect         googleapis.com
-// @connect	        discord.com
+// @connect         discord.com
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
