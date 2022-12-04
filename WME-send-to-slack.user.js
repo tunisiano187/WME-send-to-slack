@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.08.15.01
+// @version         2022.12.04.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -18,7 +18,7 @@
 // @compatible      brave
 // @connect         https://cdn.jsdelivr.net/
 // @connect         googleapis.com
-// @connect	    discord.com
+// @connect	        discord.com
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
@@ -51,7 +51,8 @@ const _WHATS_NEW_LIST = { // New in this version
 	'2022.06.24.01': 'Fixing form validation logic',
 	'2022.06.24.02': 'Temporary Fix for autolock, and cleaning update logs',
 	'2022.06.24.03': 'Fixing Up Script Updates...',
-	'2022.08.15.01': 'allow discord'
+	'2022.08.15.01': 'allow discord',
+    '2022.22.04.01': 'Fixing missing settings tab'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
