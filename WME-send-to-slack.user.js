@@ -26,6 +26,7 @@
 // @grant           GM_info
 // @grant           GM_xmlhttpRequest
 // ==/UserScript==
+/* global $ */
 
 // Updates informations
 var UpdateNotes = "";
