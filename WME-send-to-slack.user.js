@@ -52,7 +52,7 @@ const _WHATS_NEW_LIST = { // New in this version
 	'2022.06.24.02': 'Temporary Fix for autolock, and cleaning update logs',
 	'2022.06.24.03': 'Fixing Up Script Updates...',
 	'2022.08.15.01': 'allow discord',
-    '2022.22.04.01': 'Fixing missing settings tab'
+	'2022.12.04.01': 'Fixing missing settings tab [Bug still pending - some bugs remain...]'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
