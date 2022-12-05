@@ -98,7 +98,7 @@ function init(e) {
         if(window.location.href.indexOf("segment") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
             $( "#WMESTSvalidation" ).remove();
-            $('.panel-header-component-main').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+            $('.panel-header-component').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
             Loadactions()
         }
     LoadTab();
@@ -122,7 +122,7 @@ function init(e) {
                         $( "#WMESTSlock" ).remove();
                         $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
                         $( "#WMESTSvalidation" ).remove();
-                        $('.panel-header-component-main').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+                        $('.panel-header-component').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
                         log('Validation icon added');
                         Loadactions();
                     }
