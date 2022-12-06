@@ -747,7 +747,7 @@ function LoadTab() {
     if(!$('.slack-settings-tab').length){
         var userTabs = document.getElementById('user-info');
         var navTabs = userTabs.getElementsByClassName('nav-tabs')[0];
-		var tabContent = userTabs.getElementsByClassName('tab-content')[0];
+        var tabContent = userTabs.getElementsByClassName('tab-content')[0];
         var sts_settings_tab = document.createElement('li');
         sts_settings_tab.innerHTML = '<a href="#sidepanel-sts" class="slack-settings-tab" data-toggle="tab" aria-expanded="false">' + settingsicon + '</a>';
         navTabs.appendChild(sts_settings_tab);
