@@ -723,13 +723,13 @@ function UpdateStates() {
     });
     var OptionState = document.createElement('option');
     OptionState.text = translationsInfo[18][0];
-    if(stateDB[$('#WMESTSCountry').val()]) {
+    if(stateDB[localStorage.getItem('WMESTSCountry')]) {
         OptionState.text = "------"
         OptionState.selected=true;
     }
-    OptionState.id = $('#WMESTSCountry').val() + "ns";
+    OptionState.id = localStorage.getItem('WMESTSCountry') + "ns";
     $('#WMESTSState').append(OptionState)
-    var Stateselected = stateDB[$('#WMESTSCountry').val()];
+    var Stateselected = stateDB[localStorage.getItem('WMESTSCountry')];
     for (var key in Stateselected){
         OptionState = document.createElement('option');
         OptionState.text=Stateselected[key];
@@ -744,6 +744,7 @@ function UpdateStates() {
 
 // Create Settings Tab
 function LoadTab() {
+    debugger;
     if(!$('.slack-settings-tab').length){
         var userTabs = document.getElementById('user-info');
         var navTabs = userTabs.getElementsByClassName('nav-tabs')[0];
@@ -803,7 +804,7 @@ function LoadTab() {
         sts_settings_tabcontent_language.innerHTML = translationsInfo[21][0];
         sts_settings_tabcontent.appendChild(sts_settings_tabcontent_language);
         sts_settings_tabcontent.appendChild(languagechoose);
-        if(('WMESTSCountry' in localStorage) && !stateDB[$('#WMESTSCountry').val()])
+        if(('WMESTSCountry' in localStorage) && !stateDB[localStorage.getItem('WMESTSCountry')])
         {
             localStorage.setItem('WMESTSState', localStorage.getItem('WMESTSCountry') + "ns");
         }
