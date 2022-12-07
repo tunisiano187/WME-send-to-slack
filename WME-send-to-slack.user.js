@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.12.04.01
+// @version         2022.12.07.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -52,7 +52,8 @@ const _WHATS_NEW_LIST = { // New in this version
 	'2022.06.24.02': 'Temporary Fix for autolock, and cleaning update logs',
 	'2022.06.24.03': 'Fixing Up Script Updates...',
 	'2022.08.15.01': 'allow discord',
-	'2022.12.04.01': 'Fixing missing settings tab [Bug still pending - some bugs remain...]'
+	'2022.12.04.01': 'Fixing missing settings tab [Bug still pending - some bugs remain...]',
+    '2022.12.07.01': 'Fixing missing settings tab'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -97,9 +98,10 @@ function init(e) {
         if(window.location.href.indexOf("segment") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
             $( "#WMESTSvalidation" ).remove();
-            $('.panel-header-component-main').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+            $('.panel-header-component').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
             Loadactions()
         }
+    LoadTab();
     })
 
     // On change, check for changes in the edit-panel
@@ -120,7 +122,7 @@ function init(e) {
                         $( "#WMESTSlock" ).remove();
                         $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
                         $( "#WMESTSvalidation" ).remove();
-                        $('.panel-header-component-main').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+                        $('.panel-header-component').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
                         log('Validation icon added');
                         Loadactions();
                     }
@@ -666,7 +668,7 @@ function Loadactions() {
     LoadTab();
 }
 
-// Recommanded Lock
+// Recommended Lock
 function getShouldLockedAt(selection, current){
     var ShouldBeLockedAt = current;
     var max_level = 0;
@@ -714,7 +716,7 @@ function UpdateLanguages() {
     }
 }
 
-// Update the language in the Browser's database
+// Update the state in the Browser's database
 function UpdateStates() {
     $('#WMESTSState option').each(function() {
         $(this).remove();
@@ -743,9 +745,15 @@ function UpdateStates() {
 // Create Settings Tab
 function LoadTab() {
     if(!$('.slack-settings-tab').length){
-        var b = $('<li><a class="slack-settings-tab" data-toggle="tab" href="#segment-edit-settings" aria-expanded="false">' + settingsicon + '</a></li>');
-        $("#user-info .flex-parent #user-tabs .nav-tabs").append(b);
-        $("#user-info .flex-parent .tab-content").append('<div class="tab-pane" id="segment-edit-settings"><div class="settings">Slack</div></div>');
+        var userTabs = document.getElementById('user-info');
+        var navTabs = userTabs.getElementsByClassName('nav-tabs')[0];
+        var tabContent = userTabs.getElementsByClassName('tab-content')[0];
+        var sts_settings_tab = document.createElement('li');
+        sts_settings_tab.innerHTML = '<a href="#sidepanel-sts" class="slack-settings-tab" data-toggle="tab" aria-expanded="false">' + settingsicon + '</a>';
+        navTabs.appendChild(sts_settings_tab);
+        var sts_settings_tabcontent = document.createElement("div");
+        sts_settings_tabcontent.className = "tab-pane";
+        sts_settings_tabcontent.id = "sidepanel-sts";
         var countrychoose = document.createElement('select');
         countrychoose.id='WMESTSCountry';
         countrychoose.className='form-control';
@@ -764,20 +772,11 @@ function LoadTab() {
             }
             countrychoose.appendChild(OptionCountry);
         }
-        $("#segment-edit-settings").html('<label class="control-label">' + translationsInfo[19][0] + '</label>')//"Country"
-        $("#segment-edit-settings").append(countrychoose);
-        $('#WMESTSCountry').change(function() {
-            $(localStorage.setItem('WMESTSCountry', $('#WMESTSCountry').val()));
-            localStorage.removeItem('WMESTSState');
-            localStorage.removeItem('WMESTSLanguage');
-            localStorage.removeItem('WMESTSChanel');
-            localStorage.removeItem('WMESTSServer');
-            if(!stateDB[$('#WMESTSCountry').val()])
-            {
-                localStorage.setItem('WMESTSState', $('#WMESTSCountry').val() + "ns");
-            }
-            UpdateStates();
-        });
+        var sts_settings_tabcontent_country = document.createElement("label");
+        sts_settings_tabcontent_country.className = "control-label";
+        sts_settings_tabcontent_country.innerHTML = translationsInfo[19][0];
+        sts_settings_tabcontent.appendChild(sts_settings_tabcontent_country);
+        sts_settings_tabcontent.appendChild(countrychoose);
         var statechoose = document.createElement('select');
         statechoose.id='WMESTSState';
         statechoose.className='form-control';
@@ -785,14 +784,11 @@ function LoadTab() {
         var OptionState = document.createElement('option');
         OptionState.text = "------";
         statechoose.appendChild(OptionState)
-        $("#segment-edit-settings").append('<label class="control-label">' + translationsInfo[20][0] + '</label>')
-        $("#segment-edit-settings").append(statechoose);
-        $('#WMESTSState').change(function() {
-            localStorage.removeItem('WMESTSLanguage');
-            localStorage.removeItem('WMESTSChanel');
-            $(localStorage.setItem('WMESTSState', $('#WMESTSState').val()));
-            UpdateLanguages();
-        });
+        var sts_settings_tabcontent_state = document.createElement("label");
+        sts_settings_tabcontent_state.className = "control-label";
+        sts_settings_tabcontent_state.innerHTML = translationsInfo[20][0];
+        sts_settings_tabcontent.appendChild(sts_settings_tabcontent_state);
+        sts_settings_tabcontent.appendChild(statechoose);
         var languagechoose = document.createElement('select');
         languagechoose.id='WMESTSLanguage';
         languagechoose.className='form-control';
@@ -802,12 +798,11 @@ function LoadTab() {
             OptionLanguage.text = "------";
             languagechoose.appendChild(OptionLanguage)
         }
-        $("#segment-edit-settings").append('<label class="control-label">' + translationsInfo[21][0] + '</label>')
-        $("#segment-edit-settings").append(languagechoose);
-        $('#WMESTSLanguage').change(function() {
-            $(localStorage.setItem('WMESTSServer', $('#WMESTSLanguage').val()));
-            //$(localStorage.setItem('WMESTSChanel', $('#WMESTSCountry').val() + "_" + $('#WMESTSLanguage').val()));
-        });
+        var sts_settings_tabcontent_language = document.createElement("label");
+        sts_settings_tabcontent_language.className = "control-label";
+        sts_settings_tabcontent_language.innerHTML = translationsInfo[21][0];
+        sts_settings_tabcontent.appendChild(sts_settings_tabcontent_language);
+        sts_settings_tabcontent.appendChild(languagechoose);
         if(('WMESTSCountry' in localStorage) && !stateDB[$('#WMESTSCountry').val()])
         {
             localStorage.setItem('WMESTSState', localStorage.getItem('WMESTSCountry') + "ns");
@@ -816,6 +811,31 @@ function LoadTab() {
         {
             localStorage.setItem('WMESTSServer', localStorage.getItem('WMESTSState') + "_en");
         }
+        tabContent.appendChild(sts_settings_tabcontent);
+        let WMESTSCountry = document.querySelector('#WMESTSCountry');
+        WMESTSCountry.addEventListener('change', function() {
+            $(localStorage.setItem('WMESTSCountry', this.value));
+            localStorage.removeItem('WMESTSState');
+            localStorage.removeItem('WMESTSLanguage');
+            localStorage.removeItem('WMESTSChanel');
+            localStorage.removeItem('WMESTSServer');
+            if(!stateDB[this.value])
+            {
+                localStorage.setItem('WMESTSState', this.value + "ns");
+            };
+            UpdateStates();
+        });
+        let WMESTSState = document.querySelector('#WMESTSState');
+        WMESTSState.addEventListener('change', function() {
+            $(localStorage.setItem('WMESTSState', this.value));
+            localStorage.removeItem('WMESTSLanguage');
+            localStorage.removeItem('WMESTSChanel');
+            UpdateLanguages();
+        });
+        let WMESTSLanguage = document.querySelector('#WMESTSLanguage');
+        WMESTSLanguage.addEventListener('change', function() {
+            $(localStorage.setItem('WMESTSServer', this.value));
+        });
         UpdateStates();
     }
 }
