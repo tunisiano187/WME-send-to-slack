@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2022.12.07.01
+// @version         2022.12.08.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -53,7 +53,8 @@ const _WHATS_NEW_LIST = { // New in this version
 	'2022.06.24.03': 'Fixing Up Script Updates...',
 	'2022.08.15.01': 'allow discord',
 	'2022.12.04.01': 'Fixing missing settings tab [Bug still pending - some bugs remain...]',
-    '2022.12.07.01': 'Fixing missing settings tab'
+        '2022.12.07.01': 'Fixing missing settings tab',
+	'2022.12.08.01': 'Fixing deletion of selected state after page reload'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -723,13 +724,13 @@ function UpdateStates() {
     });
     var OptionState = document.createElement('option');
     OptionState.text = translationsInfo[18][0];
-    if(stateDB[$('#WMESTSCountry').val()]) {
+    if(stateDB[localStorage.getItem('WMESTSCountry')]) {
         OptionState.text = "------"
         OptionState.selected=true;
     }
-    OptionState.id = $('#WMESTSCountry').val() + "ns";
+    OptionState.id = localStorage.getItem('WMESTSCountry') + "ns";
     $('#WMESTSState').append(OptionState)
-    var Stateselected = stateDB[$('#WMESTSCountry').val()];
+    var Stateselected = stateDB[localStorage.getItem('WMESTSCountry')];
     for (var key in Stateselected){
         OptionState = document.createElement('option');
         OptionState.text=Stateselected[key];
@@ -803,7 +804,7 @@ function LoadTab() {
         sts_settings_tabcontent_language.innerHTML = translationsInfo[21][0];
         sts_settings_tabcontent.appendChild(sts_settings_tabcontent_language);
         sts_settings_tabcontent.appendChild(languagechoose);
-        if(('WMESTSCountry' in localStorage) && !stateDB[$('#WMESTSCountry').val()])
+        if(('WMESTSCountry' in localStorage) && !stateDB[localStorage.getItem('WMESTSCountry')])
         {
             localStorage.setItem('WMESTSState', localStorage.getItem('WMESTSCountry') + "ns");
         }
