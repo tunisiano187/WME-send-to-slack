@@ -18,12 +18,18 @@
 // @compatible      brave
 // @connect         https://cdn.jsdelivr.net/
 // @connect         googleapis.com
+// @connect         slack.com
+// @connect         discordapp.com
 // @connect         discord.com
+// @connect         telegram.org
+// @connect         google.com
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
+// @require         https://greasyfork.org/scripts/401399-gm-xhr/code/GM%20XHR.js?version=938754
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
 // @contributionURL http://ko-fi.com/tunisiano
 // @grant           GM_info
+// @grant           GM_XHR
 // @grant           GM_xmlhttpRequest
 // ==/UserScript==
 /* global $ */
@@ -87,6 +93,8 @@ var sent=0;
 
 // Initialization
 function init(e) {
+    // Replace XHR by GM_XHR to avoid CSP error
+    $.ajaxSetup({ xhr: function() {return new GM_XHR; } });
     log("Load");
     if (typeof W === 'undefined' || typeof W.map === 'undefined' || typeof W.prefs === 'undefined' || document.getElementById('edit-panel') === null || WazeWrap.Ready != true) {
         setTimeout(init, 800);
@@ -213,7 +221,7 @@ async function localization () {
                 console.log(response)
             });
         }else{
-            await $.get(cons_connect_one + i18n + cons_connect_two)
+            await makeHTTPRequest('GET', cons_connect_one + i18n + cons_connect_two)
 		  .then( function(data) {
 		    $.each( data.values, function( key, val ) {
             if (!(Array.isArray(val) && val.length)) {
