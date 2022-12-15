@@ -205,37 +205,37 @@ async function localization () {
         //Trying to make Beta vs. Prod. Compatibility - HTTP
         if (location.host == "beta.waze.com"){
             await makeHTTPRequest('GET', cons_connect_one + sheetName + cons_connect_two)
-            .then( function(response) {
-                $.each( response.values, function( key, val ) {
-            if (!(Array.isArray(val) && val.length)) {
-                translationsInfo.push("Not Translated")
-            } else {
-                translationsInfo.push(val)
-            }
+                .then(function (response) {
+                    $.each(response.values, function (key, val) {
+                        if (!(Array.isArray(val) && val.length)) {
+                            translationsInfo.push("Not Translated")
+                        } else {
+                            translationsInfo.push(val)
+                        }
+                    });
+                    statusSheetsCallback = true;
+                    log("Tampermonkey HTTP succeeded");
+                })
+                .catch(function (response) {
+                    log("Tampermonkey HTTP failed!");
+                    console.log(response)
                 });
-                statusSheetsCallback = true;
-                log("Tampermonkey HTTP succeeded");
-            } )
-            .catch(function(response){
-                log( "Tampermonkey HTTP failed!" );
-                console.log(response)
-            });
         }else{
             await makeHTTPRequest('GET', cons_connect_one + i18n + cons_connect_two)
-		  .then( function(data) {
-		    $.each( data.values, function( key, val ) {
-            if (!(Array.isArray(val) && val.length)) {
-                translationsInfo.push("Not Translated")
-            } else {
-                translationsInfo.push(val)
-            }
-                });
+                .then(function (data) {
+                    $.each(data.values, function (key, val) {
+                        if (!(Array.isArray(val) && val.length)) {
+                            translationsInfo.push("Not Translated")
+                        } else {
+                            translationsInfo.push(val)
+                        }
+                    });
                     statusSheetsCallback = true;
-                log("$.get succeeded");
-            } )
-            .catch( function() {
-                log( "$.get failed!" );
-            } );
+                    log("Tampermonkey HTTP succeeded");
+                })
+                .catch(function () {
+                    log("Tampermonkey HTTP failed!");
+                });
         }
         if (statusSheetsCallback) {
             log('Connected to Google Sheets API')
