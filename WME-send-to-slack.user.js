@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2023.06.01.01
+// @version         2023.07.19.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -55,7 +55,8 @@ const _WHATS_NEW_LIST = { // New in this version
 	'2022.12.04.01': 'Fixing missing settings tab [Bug still pending - some bugs remain...]',
         '2022.12.07.01': 'Fixing missing settings tab',
 	'2022.12.08.01': 'Fixing deletion of selected state after page reload',
-	'2023.06.01.01': 'Fixing missing closure icons. Special thanks to @GyllieGyllie.'
+	'2023.06.01.01': 'Fixing missing closure icons. Special thanks to @GyllieGyllie.',
+    '2023.07.19.01': 'Fix requests not going through & fix missing validation icon.'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -100,7 +101,7 @@ function init(e) {
         if(window.location.href.indexOf("segment") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
             $( "#WMESTSvalidation" ).remove();
-            $('.panel-header-component').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+            $(".venue-edit-section wz-tabs").before('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
             Loadactions()
         }
     LoadTab();
@@ -124,7 +125,7 @@ function init(e) {
                         $( "#WMESTSlock" ).remove();
                         $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
                         $( "#WMESTSvalidation" ).remove();
-                        $('.panel-header-component').append('<span id="WMESTSvalidation">' + validationicon + '</div>');
+                        $(".venue-edit-section wz-tabs").before('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
                         log('Validation icon added');
                         Loadactions();
                     }
@@ -278,10 +279,10 @@ function GetCityID(selection, Type) {
     var StreetID = 0;
     if(Type != "segment")
     {
-        StreetID = selection.model.attributes.streetID;
+        StreetID = selection.attributes.streetID;
     }
     else {
-        StreetID = selection.model.attributes.primaryStreetID;
+        StreetID = selection.attributes.primaryStreetID;
     }
     if(StreetID) {
         return W.model.streets.getObjectById(StreetID).cityID;
@@ -682,7 +683,7 @@ function getShouldLockedAt(selection, current){
     CountryLockLevel[4] = CountryLocks.rmp_lvl;
     CountryLockLevel[6] = CountryLocks.maj_lvl;
     CountryLockLevel[7] = CountryLocks.min_lvl;
-    var RoadType = selection.model.attributes.roadType;
+    var RoadType = selection.attributes.roadType;
     if(CountryLockLevel[RoadType]) {
         if(CountryLockLevel[RoadType]>ShouldBeLockedAt) {
             ShouldBeLockedAt = CountryLockLevel[RoadType];
@@ -855,7 +856,7 @@ function getPermalinkCleaned(iconaction) {
     text = "https://www.waze.com/editor?env=" + W.app.getAppRegionCode() + "&";
     var count = 0;
     var texttype = "venue"
-    var textTypeLoc = translationsInfo[23][0] + " : " + W.selectionManager.getSelectedFeatures()[0].model.attributes.name; //"venue"
+    var textTypeLoc = translationsInfo[23][0] + " : " + W.selectionManager.getSelectedFeatures()[0].data.wazeFeature._wmeObject.type; //"venue"
     var CityName = "";
     var CountryName = "";
     var StateName = "";
@@ -868,58 +869,62 @@ function getPermalinkCleaned(iconaction) {
     var center = W.map.getCenter();
     var mapCenter = new OpenLayers.Geometry.Point(center.lon,center.lat);
     var currentlocation = (new OpenLayers.LonLat(mapCenter.x,mapCenter.y)).transform(projI,projE).toString().replace(',','&');
+
     $.each(W.selectionManager.getSelectedFeatures(), function(indx, section){
-        if(texttype == "venue") { texttype = section.model.attributes.categories }
+        var data = section.data.wazeFeature._wmeObject;
+        if(texttype == "venue") {
+            texttype = data.attributes.categories
+        }
         if(selectedindex!="")
         {
             selectedindex=selectedindex + ",";
         }
-        selectedindex = selectedindex + section.model.attributes.id;
-        if(section.model.type == "camera")
+        selectedindex = selectedindex + data.attributes.id;
+        if(data.type == "camera")
         {
             selectiontype="&cameras=";
             texttype="camera";
             textTypeLoc = translationsInfo[24][0]
-        } else if(section.model.type == "bigJunction")
+        } else if(data.type == "bigJunction")
         {
             selectiontype="&bigJunctions=";
             texttype="JB";
             textTypeLoc = translationsInfo[25][0]
-        } else if (section.model.type == "mapComment")
+        } else if (data.type == "mapComment")
         {
             selectiontype="&mapComments=";
             texttype="map comment";
             textTypeLoc = translationsInfo[26][0]
-        } else if (section.model.type == "railroadCrossing")
+        } else if (data.type == "railroadCrossing")
         {
             selectiontype="&railroadCrossings=";
             texttype="Railroad Crossing";
             textTypeLoc = translationsInfo[27][0]
         }
-        else if(section.model.type == "restrictedDrivingArea"){
+        else if(data.type == "restrictedDrivingArea"){
             selectiontype="&restrictedDrivingAreas=";
             texttype="Restricted Area";
             textTypeLoc = translationsInfo[37][0];
         }
-        else if(section.model.type !== 'venue')
+        else if(data.type !== 'venue')
         {
             selectiontype="&segments=";
             texttype="segment";
             textTypeLoc = translationsInfo[28][0];
-            ShouldBeLockedAt = getShouldLockedAt(section, ShouldBeLockedAt)
+            ShouldBeLockedAt = getShouldLockedAt(data, ShouldBeLockedAt)
         }
         count++;
-        if(section.model.attributes.lockRank !== null && section.model.attributes.lockRank > RequiredRank) {
-            RequiredRank = section.model.attributes.lockRank;
-        } else if(section.model.attributes.rank > RequiredRank) {
-            RequiredRank = section.model.attributes.rank;
+        if(data.attributes.lockRank !== null && data.attributes.lockRank > RequiredRank) {
+            RequiredRank = data.attributes.lockRank;
+        } else if(data.attributes.rank > RequiredRank) {
+            RequiredRank = data.attributes.rank;
         }
-        CityName = GetCity(GetCityID(section, texttype));
+        CityName = GetCity(GetCityID(data, texttype));
         if(CityName == null) {
             CityName = "";
         }
-        CountryName = GetCountry(GetCityID(section, texttype));
-        StateName = GetState(GetCityID(section, texttype));
+        CountryName = GetCountry(GetCityID(data, texttype));
+        StateName = GetState(GetCityID(data, texttype));
         log("State Name : " + StateName);
         if(StateName == false) {
             StateName = "";
