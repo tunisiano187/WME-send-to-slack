@@ -101,7 +101,7 @@ function init(e) {
         if(window.location.href.indexOf("segment") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
             $( "#WMESTSvalidation" ).remove();
-            $(".venue-edit-section wz-tabs").before('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
+            $("#edit-panel > div > div > div > wz-section-header > div.header-actions").append('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
             Loadactions()
         }
     LoadTab();
@@ -125,7 +125,7 @@ function init(e) {
                         $( "#WMESTSlock" ).remove();
                         $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
                         $( "#WMESTSvalidation" ).remove();
-                        $(".venue-edit-section wz-tabs").before('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
+                        $("#edit-panel > div > div > div > wz-section-header > div.header-actions").append('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
                         log('Validation icon added');
                         Loadactions();
                     }
@@ -183,7 +183,7 @@ function autoLockClick (){
         var levelTo = String(wmeStsTo-1);
         let wmeLockLvl='#lockRank-' + levelTo;
         log("Click on " + wmeLockLvl);
-        document.getElementById("edit-buttons").style.display = "flex";
+        document.querySelector("#segment-edit-general > form > div.lock-edit")
         $(wmeLockLvl).click();
     }
 }
