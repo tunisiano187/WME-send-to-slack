@@ -287,7 +287,7 @@ function GetCityID(selection, Type) {
         StreetID = selection.attributes.primaryStreetID;
     }
     if(StreetID) {
-        return W.model.streets.getObjectById(StreetID).cityID;
+        return W.model.streets.getObjectById(StreetID).attributes.cityID;
     } else {
         return 0;
     }
@@ -295,19 +295,21 @@ function GetCityID(selection, Type) {
 
 // Get City name from City ID
 function GetCity(CityId) {
-    if(CityId>0) {
-       return W.model.cities.getObjectById(CityId).attributes.name;
+    let cityName;
+    if (CityId > 0) {
+        cityName = W.model.cities.getObjectById(CityId).attributes.name;
     }
-    else {
-        return $('span.full-address').text().split(",")[0];
+    if (!cityName) {
+        cityName = $('span.full-address').text().split(",")[0];
     }
+    return cityName;
 }
 
 // Get Country name from City ID
 function GetCountry(CityId) {
     if(CityId>0) {
        var CountryID = W.model.cities.getObjectById(CityId).attributes.countryID;
-       return W.model.countries.getObjectById(CountryID).name;
+       return W.model.countries.getObjectById(CountryID).attributes.name;
     }
     else {
         return $('span.full-address').text().split(",")[$('span.full-address').text().split(",").length-1];
@@ -318,7 +320,7 @@ function GetState(CityId) {
     if(W.model.cities.getObjectById(CityId))
     {
         var StateID = W.model.cities.getObjectById(CityId).attributes.stateID;
-        var State = W.model.states.getObjectById(StateID).name;
+        var State = W.model.states.getObjectById(StateID).attributes.name;
         if(State===null)
         {
             return false;
