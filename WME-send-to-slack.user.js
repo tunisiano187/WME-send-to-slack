@@ -90,6 +90,16 @@ var settingsicon = '<img height="25px;" src="data:image/png;base64,iVBORw0KGgoAA
 
 var sent=0;
 
+var editoricon = {
+    1: "https://storage.googleapis.com/wazeopedia-files/0/0d/20_Map_editor_1.png",
+    2: "https://storage.googleapis.com/wazeopedia-files/1/13/21_Map_editor_2.png",
+    3: "https://storage.googleapis.com/wazeopedia-files/c/cb/22_Map_editor_3.png",
+    4: "https://storage.googleapis.com/wazeopedia-files/5/59/23_Map_editor_4.png",
+    5: "https://storage.googleapis.com/wazeopedia-files/8/87/24_Map_editor_5.png",
+    6: "https://storage.googleapis.com/wazeopedia-files/6/6b/25_Map_editor_6.png",
+    7: "",
+}
+
 // Initialization
 function init(e) {
     log("Load");
@@ -488,15 +498,18 @@ function Construct(iconaction) {
         abort=true;
         WazeWrap.Alerts.error(ScriptName, translationsInfo[9][0]);//"Some segments aren't saved, please save them and try again"
     }
-    var profileurl="https://www.waze.com/user/editor/"
+    var profileurl="https://www.waze.com/user/editor/";
+    var userName = W.loginManager.user.getUsername();
     var userRank = WazeWrap.User.Rank();
     var TextToSend = ':' + translationsInfo[11][0] + RequiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(profileurl) + W.loginManager.user.getUsername() + "|" + W.loginManager.user.getUsername() + "> (*" + translationsInfo[11][0] + userRank + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
+    var TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + " (" + translationsInfo[11][0] + RequiredLevel +")](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
     var TexToSendTelegramMD = `${translationsInfo[11][0]}${RequiredLevel} *${translationsInfo[10][0]}:* [${W.loginManager.user.getUsername()}](www.waze.com/user/editor/${W.loginManager.user.getUsername()}) (*${userRank}*)
 *${translationsInfo[12][0]} :* [${textSelection}](${permalink})
 *${translationsInfo[13][0]} :* ${iconactionlocale}
 *${translationsInfo[14][0]} :* ${CityName}, ${StateName}, ${CountryName}
 ${closureTelegramDetails}${telegramDetails}`;
     TextToSend = TextToSend.replace('\r\n\r\n','\r\n');
+    TextToSendDiscord = TextToSendDiscord.replace('\r\n\r\n','\r\n');
     // Get the webhooks
 
     if(Reason !== 'Cancelled' && chanel !== "" && abort === false) {
@@ -504,7 +517,103 @@ ${closureTelegramDetails}${telegramDetails}`;
         {
             switch (key.toLowerCase()) {
                 case "discord":
-                case "slack":
+                    log('Channel : ' + chanel);
+                    var actionicon = "";
+                    log(iconaction);
+                    switch(iconaction.toLowerCase()) {
+                        case "closure":
+                            actionicon = "road_closed";
+                            break;
+                        case "open":
+                            actionicon = "open_closure";
+                            break;
+                        case "lock":
+                            actionicon = "lock";
+                            break;
+                        case "downlock":
+                            actionicon = "unlock";
+                            break;
+                        case "validation":
+                            actionicon = "heavy_check_mark";
+                            break;
+                        default:
+                            actionicon = "pencil2";
+                    }
+
+                    let channelType = localStorage.getItem('WMESTSChannelType');
+                    if (!channelType) {
+                        channelType = "Text"; // First guess: text channel
+                    }
+
+                    function sendToDiscord(first, fallback) {
+                        let channelType = first;
+                        if (channelType == null) {
+                            return;
+                        }
+
+                        let myEmbed = {
+                            description: TextToSendDiscord
+                        }
+
+                        let textparams = {
+                            username: "(L" + RequiredLevel + ") - " + iconactionlocale + " - " + [CityName, StateName, CountryName].filter(Boolean).join(', '),
+                            avatar_url: editoricon[RequiredLevel],
+                            embeds: [myEmbed]
+                        }
+
+                        let forumparams = {
+                            username: ScriptName + " " + GM_info.script.version,
+                            avatar_url: editoricon[RequiredLevel],
+                            content: TextToSendDiscord,
+                            thread_name: "(L" + RequiredLevel + ") - " + iconactionlocale + " - " + [CityName, StateName, CountryName].filter(Boolean).join(', '),
+                            flags: 1 << 2 // SUPPRESS_EMBEDS
+                        }
+
+                        let params = {
+                            "Text": textparams,
+                            "Forum": forumparams
+                        };
+
+                        const regex = /\/slack$/i;
+                        let url = serverDB[localStorage.getItem('WMESTSServer')][key][chanel].replace(regex, "");
+
+                        let xhr = new XMLHttpRequest();
+                        xhr.open("POST", url);
+                        xhr.setRequestHeader('Content-type', 'application/json');
+                        xhr.responseType = 'json';
+                        xhr.send(JSON.stringify(params[channelType]));
+                        xhr.onload = function () {
+                            let responseObj = xhr.response;
+                            let status = xhr.status;
+                            switch (status) {
+                                case 400: // Bad request
+                                    switch (responseObj.code) {
+                                        case 220001: // thread_name used in text channel
+                                        case 220003: // missing thread_name used in forum channel
+                                            sendToDiscord(fallback, "");
+                                            break;
+                                        default:
+                                            log("Unsupported request - Errorcode: " + responseObj.code + " - Message: " + responseObj.message);
+                                            localStorage.setItem('WMESTSChannelType', "");
+                                    }
+                                    break;
+                                case 200:
+                                case 204: //No Content
+                                    localStorage.setItem('WMESTSChannelType', channelType);
+                                    sent++;
+                                    break;
+                                default:
+                                    log("Error sending request - Errorcode: " + responseObj.code + " - Message: " + responseObj.message);
+                            }
+                        } //xhr.onload
+                    }
+
+                    sendToDiscord(channelType, (channelType === "Text" ? "Forum" : "Text"));
+
+                    log(TextToSendDiscord);
+                    sent++;
+                    break;
+               case "slack":
                     log('Chanel : ' + chanel);
                     var actionicon="";
                     log(iconaction)
@@ -878,7 +987,7 @@ function getPermalinkCleaned(iconaction) {
     $.each(W.selectionManager.getSelectedFeatures(), function(indx, section){
         var data = section.data.wazeFeature._wmeObject;
         if(texttype == "venue") {
-            texttype = data.attributes.categories
+            texttype = data.attributes.categories;
         }
         if(selectedindex!="")
         {
@@ -916,7 +1025,7 @@ function getPermalinkCleaned(iconaction) {
             selectiontype="&segments=";
             texttype="segment";
             textTypeLoc = translationsInfo[28][0];
-            ShouldBeLockedAt = getShouldLockedAt(data, ShouldBeLockedAt)
+            ShouldBeLockedAt = getShouldLockedAt(data, ShouldBeLockedAt);
         }
         count++;
         if(data.attributes.lockRank !== null && data.attributes.lockRank > RequiredRank) {
