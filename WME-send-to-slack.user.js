@@ -59,6 +59,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2023.07.19.01': 'Fix requests not going through & fix missing validation icon.',
     '2023.08.03.01': 'Fix usernames not sending correctly anymore',
 	'2024.01.06.02': 'Adding Mauritius country.\nWe\'re now receiving again new country requests\nQuick Fix for a typo.',
+	'2024.01.20.01': 'Adding Qatar.',
     '2024.01.20.01': 'Fix missing state and country names.'
 };
 // Var declaration
