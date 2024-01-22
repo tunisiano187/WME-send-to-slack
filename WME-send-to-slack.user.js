@@ -858,7 +858,7 @@ function getPermalinkCleaned(iconaction) {
     text = "https://www.waze.com/editor?env=" + W.app.getAppRegionCode() + "&";
     var count = 0;
     var texttype = "venue"
-    var textTypeLoc = translationsInfo[23][0] + " : " + W.selectionManager.getSelectedFeatures()[0].data.wazeFeature._wmeObject.type; //"venue"
+    var textTypeLoc = translationsInfo[23][0] + " : " + W.selectionManager.getSelectedFeatures()[0]._wmeObject.type; //"venue"
     var CityName = "";
     var CountryName = "";
     var StateName = "";
@@ -873,7 +873,7 @@ function getPermalinkCleaned(iconaction) {
     var currentlocation = (new OpenLayers.LonLat(mapCenter.x,mapCenter.y)).transform(projI,projE).toString().replace(',','&');
 
     $.each(W.selectionManager.getSelectedFeatures(), function(indx, section){
-        var data = section.data.wazeFeature._wmeObject;
+        var data = section._wmeObject;
         if(texttype == "venue") {
             texttype = data.attributes.categories
         }
