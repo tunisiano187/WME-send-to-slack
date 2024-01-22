@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.01.20.01
+// @version         2024.01.22.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -59,7 +59,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2023.07.19.01': 'Fix requests not going through & fix missing validation icon.',
     '2023.08.03.01': 'Fix usernames not sending correctly anymore',
 	'2024.01.06.02': 'Adding Mauritius country.\nWe\'re now receiving again new country requests\nQuick Fix for a typo.',
-	'2024.01.20.01': 'Adding Qatar.'
+	'2024.01.20.01': 'Adding Qatar.',
+    '2024.01.22.01': 'Fix breaking changes in WME v2.206.'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -859,7 +860,7 @@ function getPermalinkCleaned(iconaction) {
     text = "https://www.waze.com/editor?env=" + W.app.getAppRegionCode() + "&";
     var count = 0;
     var texttype = "venue"
-    var textTypeLoc = translationsInfo[23][0] + " : " + W.selectionManager.getSelectedFeatures()[0].data.wazeFeature._wmeObject.type; //"venue"
+    var textTypeLoc = translationsInfo[23][0] + " : " + W.selectionManager.getSelectedFeatures()[0]._wmeObject.type; //"venue"
     var CityName = "";
     var CountryName = "";
     var StateName = "";
@@ -874,7 +875,7 @@ function getPermalinkCleaned(iconaction) {
     var currentlocation = (new OpenLayers.LonLat(mapCenter.x,mapCenter.y)).transform(projI,projE).toString().replace(',','&');
 
     $.each(W.selectionManager.getSelectedFeatures(), function(indx, section){
-        var data = section.data.wazeFeature._wmeObject;
+        var data = section._wmeObject;
         if(texttype == "venue") {
             texttype = data.attributes.categories
         }
