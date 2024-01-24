@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.01.22.01
+// @version         2024.01.23.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -53,14 +53,15 @@ const _WHATS_NEW_LIST = { // New in this version
 	'2022.06.24.03': 'Fixing Up Script Updates...',
 	'2022.08.15.01': 'allow discord',
 	'2022.12.04.01': 'Fixing missing settings tab [Bug still pending - some bugs remain...]',
-        '2022.12.07.01': 'Fixing missing settings tab',
+    '2022.12.07.01': 'Fixing missing settings tab',
 	'2022.12.08.01': 'Fixing deletion of selected state after page reload',
 	'2023.06.01.01': 'Fixing missing closure icons. Special thanks to @GyllieGyllie.',
     '2023.07.19.01': 'Fix requests not going through & fix missing validation icon.',
     '2023.08.03.01': 'Fix usernames not sending correctly anymore',
 	'2024.01.06.02': 'Adding Mauritius country.\nWe\'re now receiving again new country requests\nQuick Fix for a typo.',
 	'2024.01.20.01': 'Adding Qatar.',
-    '2024.01.22.01': 'Fix breaking changes in WME v2.206.'
+    '2024.01.22.01': 'Fix breaking changes in WME v2.206.',
+    '2024.01.23.01': 'Fix missing state and country names.'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -289,7 +290,7 @@ function GetCityID(selection, Type) {
         StreetID = selection.attributes.primaryStreetID;
     }
     if(StreetID) {
-        return W.model.streets.getObjectById(StreetID).cityID;
+        return W.model.streets.getObjectById(StreetID).attributes.cityID;
     } else {
         return 0;
     }
@@ -297,19 +298,21 @@ function GetCityID(selection, Type) {
 
 // Get City name from City ID
 function GetCity(CityId) {
-    if(CityId>0) {
-       return W.model.cities.getObjectById(CityId).attributes.name;
+    let cityName;
+    if (CityId > 0) {
+        cityName = W.model.cities.getObjectById(CityId).attributes.name;
     }
-    else {
-        return $('span.full-address').text().split(",")[0];
+    if (!cityName) {
+        cityName = $('span.full-address').text().split(",")[0];
     }
+    return cityName;
 }
 
 // Get Country name from City ID
 function GetCountry(CityId) {
     if(CityId>0) {
        var CountryID = W.model.cities.getObjectById(CityId).attributes.countryID;
-       return W.model.countries.getObjectById(CountryID).name;
+       return W.model.countries.getObjectById(CountryID).attributes.name;
     }
     else {
         return $('span.full-address').text().split(",")[$('span.full-address').text().split(",").length-1];
@@ -320,7 +323,7 @@ function GetState(CityId) {
     if(W.model.cities.getObjectById(CityId))
     {
         var StateID = W.model.cities.getObjectById(CityId).attributes.stateID;
-        var State = W.model.states.getObjectById(StateID).name;
+        var State = W.model.states.getObjectById(StateID).attributes.name;
         if(State===null)
         {
             return false;
