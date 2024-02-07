@@ -435,7 +435,7 @@ function Construct(iconaction) {
                 log("Editor Level check triggered, user decided to continue anyway.")
                 Reason = AskReason();
               }
-            } else if(iconaction != 'Validation') {
+            } else {
 				log("Editor Level checked, ask.")
                 Reason = AskReason();
 	    }
