@@ -62,7 +62,7 @@ const _WHATS_NEW_LIST = { // New in this version
 	'2024.01.20.01': 'Adding Qatar.',
     '2024.01.22.01': 'Fix breaking changes in WME v2.206.',
     '2024.01.23.01': 'Fix missing state and country names.',
-    '2024.02.07.01': 'Ask for reason on validation action.',
+    '2024.02.07.01': 'Ask for reason on validation action.'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
