@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.01.20.01
+// @version         2024.02.07.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -59,7 +59,10 @@ const _WHATS_NEW_LIST = { // New in this version
     '2023.07.19.01': 'Fix requests not going through & fix missing validation icon.',
     '2023.08.03.01': 'Fix usernames not sending correctly anymore',
 	'2024.01.06.02': 'Adding Mauritius country.\nWe\'re now receiving again new country requests\nQuick Fix for a typo.',
-    '2024.01.20.01': 'Fix missing state and country names.'
+	'2024.01.20.01': 'Adding Qatar.',
+    '2024.01.22.01': 'Fix breaking changes in WME v2.206.',
+    '2024.01.23.01': 'Fix missing state and country names.',
+    '2024.02.07.01': 'Ask for reason on validation action.'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -443,7 +446,7 @@ function Construct(iconaction) {
                 log("Editor Level check triggered, user decided to continue anyway.")
                 Reason = AskReason();
               }
-            } else if(iconaction != 'Validation') {
+            } else {
 				log("Editor Level checked, ask.")
                 Reason = AskReason();
 	    }
