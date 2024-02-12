@@ -563,66 +563,66 @@ ${closureTelegramDetails}${telegramDetails}`;
                     log(TextToSend);
                     sent=sent+1;
                     break;
-                    case "discord":
-                        log('Channel : ' + chanel);
-                        var actionicon = "";
-                        log(iconaction);
-                        switch(iconaction.toLowerCase()) {
-                            case "closure":
-                                actionicon = "road_closed";
-                                break;
-                            case "open":
-                                actionicon = "open_closure";
-                                break;
-                            case "lock":
-                                actionicon = "lock";
-                                break;
-                            case "downlock":
-                                actionicon = "unlock";
-                                break;
-                            case "validation":
-                                actionicon = "heavy_check_mark";
-                                break;
-                            default:
-                                actionicon = "pencil2";
-                        }
+                case "discord":
+                    log('Channel : ' + chanel);
+                    var actionicon = "";
+                    log(iconaction);
+                    switch(iconaction.toLowerCase()) {
+                        case "closure":
+                            actionicon = "road_closed";
+                            break;
+                        case "open":
+                            actionicon = "open_closure";
+                            break;
+                        case "lock":
+                            actionicon = "lock";
+                            break;
+                        case "downlock":
+                            actionicon = "unlock";
+                            break;
+                        case "validation":
+                            actionicon = "heavy_check_mark";
+                            break;
+                        default:
+                            actionicon = "pencil2";
+                    }
+ 
+                    let channelType = localStorage.getItem('WMESTSChannelType');
+                    if (!channelType) {
+                        channelType = "Text"; // First guess: text channel
+                    }
+  
+                    let myEmbed = {
+                        description: TextToSendDiscord
+                    }
     
-                        let channelType = localStorage.getItem('WMESTSChannelType');
-                        if (!channelType) {
-                            channelType = "Text"; // First guess: text channel
-                        }
+                    let bodyTextchannel = {
+                        username: "(L" + RequiredLevel + ") - " + iconactionlocale,
+                        avatar_url: editoricon[RequiredLevel],
+                        embeds: [myEmbed]
+                    }
+   
+                    let bodyForumchannel = {
+                        username: "(L" + RequiredLevel + ") - " + iconactionlocale,
+                        avatar_url: editoricon[RequiredLevel],
+                        content: TextToSendDiscord,
+                        thread_name: [CityName, StateName, CountryName].filter(Boolean).join(', '),
+                        flags: 1 << 2 // SUPPRESS_EMBEDS
+                    }
     
-                        let myEmbed = {
-                            description: TextToSendDiscord
-                        }
+                    let url = serverDB[localStorage.getItem('WMESTSServer')][key][chanel];
+   
+                    let params = {
+                        "url": url,
+                        "Text": bodyTextchannel,
+                        "Forum": bodyForumchannel
+                    };
     
-                        let bodyTextchannel = {
-                            username: "(L" + RequiredLevel + ") - " + iconactionlocale,
-                            avatar_url: editoricon[RequiredLevel],
-                            embeds: [myEmbed]
-                        }
-    
-                        let bodyForumchannel = {
-                            username: "(L" + RequiredLevel + ") - " + iconactionlocale,
-                            avatar_url: editoricon[RequiredLevel],
-                            content: TextToSendDiscord,
-                            thread_name: [CityName, StateName, CountryName].filter(Boolean).join(', '),
-                            flags: 1 << 2 // SUPPRESS_EMBEDS
-                        }
-    
-                        let url = serverDB[localStorage.getItem('WMESTSServer')][key][chanel];
-    
-                        let params = {
-                            "url": url,
-                            "Text": bodyTextchannel,
-                            "Forum": bodyForumchannel
-                        };
-    
-                        promise = sendToDiscord(params, channelType, (channelType === "Text" ? "Forum" : "Text"));
-    
-                        log(TextToSendDiscord);
-                        break;
-                    case "gform":
+                    promise = sendToDiscord(params, channelType, (channelType === "Text" ? "Forum" : "Text"));
+   
+                    log(TextToSendDiscord);
+                    break;
+                case "gform":
                     var projI=new OpenLayers.Projection("EPSG:900913");
                     var projE=new OpenLayers.Projection("EPSG:4326");
                     var currentlocation = (new OpenLayers.LonLat(Waze.map.getCenter().lon,Waze.map.getCenter().lat)).transform(projI,projE).toString().replace('lon=','').replace("lat=","");
