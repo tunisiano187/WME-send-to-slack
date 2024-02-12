@@ -505,7 +505,7 @@ function Construct(iconaction) {
     var userName = W.loginManager.user.getUsername();
     var userRank = WazeWrap.User.Rank();
     var TextToSend = ':' + translationsInfo[11][0] + RequiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(profileurl) + W.loginManager.user.getUsername() + "|" + W.loginManager.user.getUsername() + "> (*" + translationsInfo[11][0] + userRank + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
-    var TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + " (" + translationsInfo[11][0] + RequiredLevel +")](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
+    var TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
     var TexToSendTelegramMD = `${translationsInfo[11][0]}${RequiredLevel} *${translationsInfo[10][0]}:* [${W.loginManager.user.getUsername()}](www.waze.com/user/editor/${W.loginManager.user.getUsername()}) (*${userRank}*)
 *${translationsInfo[12][0]} :* [${textSelection}](${permalink})
 *${translationsInfo[13][0]} :* ${iconactionlocale}
@@ -515,107 +515,12 @@ ${closureTelegramDetails}${telegramDetails}`;
     TextToSendDiscord = TextToSendDiscord.replace('\r\n\r\n','\r\n');
     // Get the webhooks
 
+    var promise;
+    
     if(Reason !== 'Cancelled' && chanel !== "" && abort === false) {
         for (var key in serverDB[localStorage.getItem('WMESTSServer')])
         {
             switch (key.toLowerCase()) {
-                case "discord":
-                    log('Channel : ' + chanel);
-                    var actionicon = "";
-                    log(iconaction);
-                    switch(iconaction.toLowerCase()) {
-                        case "closure":
-                            actionicon = "road_closed";
-                            break;
-                        case "open":
-                            actionicon = "open_closure";
-                            break;
-                        case "lock":
-                            actionicon = "lock";
-                            break;
-                        case "downlock":
-                            actionicon = "unlock";
-                            break;
-                        case "validation":
-                            actionicon = "heavy_check_mark";
-                            break;
-                        default:
-                            actionicon = "pencil2";
-                    }
-
-                    let channelType = localStorage.getItem('WMESTSChannelType');
-                    if (!channelType) {
-                        channelType = "Text"; // First guess: text channel
-                    }
-
-                    function sendToDiscord(first, fallback) {
-                        let channelType = first;
-                        if (channelType == null) {
-                            return;
-                        }
-
-                        let myEmbed = {
-                            description: TextToSendDiscord
-                        }
-
-                        let textparams = {
-                            username: "(L" + RequiredLevel + ") - " + iconactionlocale + " - " + [CityName, StateName, CountryName].filter(Boolean).join(', '),
-                            avatar_url: editoricon[RequiredLevel],
-                            embeds: [myEmbed]
-                        }
-
-                        let forumparams = {
-                            username: ScriptName + " " + GM_info.script.version,
-                            avatar_url: editoricon[RequiredLevel],
-                            content: TextToSendDiscord,
-                            thread_name: "(L" + RequiredLevel + ") - " + iconactionlocale + " - " + [CityName, StateName, CountryName].filter(Boolean).join(', '),
-                            flags: 1 << 2 // SUPPRESS_EMBEDS
-                        }
-
-                        let params = {
-                            "Text": textparams,
-                            "Forum": forumparams
-                        };
-
-                        const regex = /\/slack$/i;
-                        let url = serverDB[localStorage.getItem('WMESTSServer')][key][chanel].replace(regex, "");
-
-                        let xhr = new XMLHttpRequest();
-                        xhr.open("POST", url);
-                        xhr.setRequestHeader('Content-type', 'application/json');
-                        xhr.responseType = 'json';
-                        xhr.send(JSON.stringify(params[channelType]));
-                        xhr.onload = function () {
-                            let responseObj = xhr.response;
-                            let status = xhr.status;
-                            switch (status) {
-                                case 400: // Bad request
-                                    switch (responseObj.code) {
-                                        case 220001: // thread_name used in text channel
-                                        case 220003: // missing thread_name used in forum channel
-                                            sendToDiscord(fallback, "");
-                                            break;
-                                        default:
-                                            log("Unsupported request - Errorcode: " + responseObj.code + " - Message: " + responseObj.message);
-                                            localStorage.setItem('WMESTSChannelType', "");
-                                    }
-                                    break;
-                                case 200:
-                                case 204: //No Content
-                                    localStorage.setItem('WMESTSChannelType', channelType);
-                                    sent++;
-                                    break;
-                                default:
-                                    log("Error sending request - Errorcode: " + responseObj.code + " - Message: " + responseObj.message);
-                            }
-                        } //xhr.onload
-                    }
-
-                    sendToDiscord(channelType, (channelType === "Text" ? "Forum" : "Text"));
-
-                    log(TextToSendDiscord);
-                    sent++;
-                    break;
                case "slack":
                     log('Chanel : ' + chanel);
                     var actionicon="";
@@ -639,67 +544,84 @@ ${closureTelegramDetails}${telegramDetails}`;
                         default:
                             actionicon = "pencil2"
                     }
-                    if(key.toLowerCase() == "slack")
-                    {
-                        $.ajax({
-                            data: 'payload=' + JSON.stringify({
-                                "text": TextToSend,
-                                "username": ScriptName + " " + GM_info.script.version,
-                                "mrkdwn": true,
-                                "channel": serverDB[localStorage.getItem('WMESTSServer')][key]["chanel_" + chanel],
-                                "icon_emoji": actionicon
-                            }),
-                            processData: false,
-                            type: 'POST',
-                            url: serverDB[localStorage.getItem('WMESTSServer')][key][chanel],
-                            error: function(x, y, z)
-                            {
-                                log('Slack error : ' + x + ' ' + y + ' ' + z);
-                            }
-                        });
-                    } else if (key.toLowerCase() == "discord")
-                    {
-                        var discrordreplaceto = {
-                            N1: "①",
-                            N2: "②",
-                            N3: "③",
-                            N4: "④",
-                            N5: "⑤",
-                            N6: "⑥",
-                            L1: "①",
-                            L2: "②",
-                            L3: "③",
-                            L4: "④",
-                            L5: "⑤",
-                            L6: "⑥",
-                            ":": "*"
-                        };
-                        var discrordreplacefrom = new RegExp(Object.keys(discrordreplaceto).join("|"), "gi");
-                        $.ajax({
-                            data: 'payload=' + JSON.stringify({
-                                "attachments": [{
-                                    "text": TextToSend.replace(discrordreplacefrom, function(matched) {
-                                        return discrordreplaceto[matched]
-                                    })
-                                }],
-                                "username": ScriptName + " " + GM_info.script.version,
-                                "mrkdwn": true,
-                                "channel": serverDB[localStorage.getItem('WMESTSServer')][key]["chanel_" + chanel],
-                                "icon_emoji": actionicon
-                            }),
-                            processData: false,
-                            type: 'POST',
-                            url: serverDB[localStorage.getItem('WMESTSServer')][key][chanel],
-                            error: function(x, y, z)
-                            {
-                                log('Discord error : ' + x + ' ' + y + ' ' + z);
-                            }
-                        });
-                    }
+                    $.ajax({
+                        data: 'payload=' + JSON.stringify({
+                            "text": TextToSend,
+                            "username": ScriptName + " " + GM_info.script.version,
+                            "mrkdwn": true,
+                            "channel": serverDB[localStorage.getItem('WMESTSServer')][key]["chanel_" + chanel],
+                            "icon_emoji": actionicon
+                        }),
+                        processData: false,
+                        type: 'POST',
+                        url: serverDB[localStorage.getItem('WMESTSServer')][key][chanel],
+                        error: function (x, y, z) {
+                            log('Slack error : ' + x + ' ' + y + ' ' + z);
+                        }
+                    });
                     log(TextToSend);
                     sent=sent+1;
                     break;
-                case "gform":
+                    case "discord":
+                        log('Channel : ' + chanel);
+                        var actionicon = "";
+                        log(iconaction);
+                        switch(iconaction.toLowerCase()) {
+                            case "closure":
+                                actionicon = "road_closed";
+                                break;
+                            case "open":
+                                actionicon = "open_closure";
+                                break;
+                            case "lock":
+                                actionicon = "lock";
+                                break;
+                            case "downlock":
+                                actionicon = "unlock";
+                                break;
+                            case "validation":
+                                actionicon = "heavy_check_mark";
+                                break;
+                            default:
+                                actionicon = "pencil2";
+                        }
+    
+                        let channelType = localStorage.getItem('WMESTSChannelType');
+                        if (!channelType) {
+                            channelType = "Text"; // First guess: text channel
+                        }
+    
+                        let myEmbed = {
+                            description: TextToSendDiscord
+                        }
+    
+                        let bodyTextchannel = {
+                            username: "(L" + RequiredLevel + ") - " + iconactionlocale,
+                            avatar_url: editoricon[RequiredLevel],
+                            embeds: [myEmbed]
+                        }
+    
+                        let bodyForumchannel = {
+                            username: "(L" + RequiredLevel + ") - " + iconactionlocale,
+                            avatar_url: editoricon[RequiredLevel],
+                            content: TextToSendDiscord,
+                            thread_name: [CityName, StateName, CountryName].filter(Boolean).join(', '),
+                            flags: 1 << 2 // SUPPRESS_EMBEDS
+                        }
+    
+                        let url = serverDB[localStorage.getItem('WMESTSServer')][key][chanel];
+    
+                        let params = {
+                            "url": url,
+                            "Text": bodyTextchannel,
+                            "Forum": bodyForumchannel
+                        };
+    
+                        promise = sendToDiscord(params, channelType, (channelType === "Text" ? "Forum" : "Text"));
+    
+                        log(TextToSendDiscord);
+                        break;
+                    case "gform":
                     var projI=new OpenLayers.Projection("EPSG:900913");
                     var projE=new OpenLayers.Projection("EPSG:4326");
                     var currentlocation = (new OpenLayers.LonLat(Waze.map.getCenter().lon,Waze.map.getCenter().lat)).transform(projI,projE).toString().replace('lon=','').replace("lat=","");
@@ -752,11 +674,13 @@ ${closureTelegramDetails}${telegramDetails}`;
             }
         }
     }
-    if(sent>0) {
-        WazeWrap.Alerts.success(ScriptName, translationsInfo[15][0]);//"Request Sent"
-    } else {
-        WazeWrap.Alerts.error(ScriptName, translationsInfo[16][0]);//'Nothing sent'
-    }
+    Promise.all([promise]).then(values => {
+        if (sent > 0) {
+            WazeWrap.Alerts.success(ScriptName, translationsInfo[15][0]);//"Request Sent"
+        } else {
+            WazeWrap.Alerts.error(ScriptName, translationsInfo[16][0]);//'Nothing sent'
+        }
+    });
 }
 
 
@@ -1116,4 +1040,76 @@ function CheckNeededParams() {
     }
     return check;
 }
+
+function sendToDiscord(params, first, fallback) {
+// Function to send request to Discord
+// auto-detecting type of channel (Forum channel or Text channel)
+    let channelType = first;
+    if (channelType == null) {
+        return null;
+    }
+
+    const regex = /\/slack$/i;
+    let url = new URL(params["url"].replace(regex, ""));
+    url.searchParams.set('wait', 'true');
+
+    return Promise.resolve()
+        .then(function () {
+            var xhr = new XMLHttpRequest();
+            xhr.open("POST", url);
+            xhr.setRequestHeader('Content-type', 'application/json');
+            xhr.responseType = 'json';
+            var body = JSON.stringify(params[channelType]);
+            return { xhr: xhr, body: body };
+        })
+        .then(function (obj) {//function adopted from  https://stackoverflow.com/questions/30008114/how-do-i-promisify-native-xhr/47445455#47445455
+            let { xhr: x, body: b } = obj;
+            return new Promise(function (resolve, reject) {
+                x.onload = function () {
+                    if (x.status < 200 || x.status >= 300) {
+                        reject({ request: x });
+                    } else {
+                        resolve(x);
+                    }
+                };
+                x.onerror = function () {
+                    reject({ request: x });
+                };
+                x.send(b);
+            });
+        })
+        .then(function () {
+            log("Request successfully send to " + channelType + " channel");
+            localStorage.setItem('WMESTSChannelType', channelType);
+            sent++;
+        })
+        .catch(function (err) {
+            if (err.hasOwnProperty('request')) {
+                let status = err.request.status;
+                switch (status) {
+                    case 400: //Bad request
+                        switch (err.request.response.code) {
+                            case 220001: // thread_name used in text channel
+                            case 220003: // missing thread_name used in forum channel
+                                log("Request failed sending to " + channelType + " channel" + ((fallback) ? "; now trying " + fallback + " channel" : ""));
+                                return sendToDiscord(params, fallback, "");
+                                break;
+                            case undefined:
+                                log("Unsupported request - Response: " + JSON.stringify(err.request.response));
+                                localStorage.setItem('WMESTSChannelType', "");
+                                break;
+                            default:
+                                log("Unsupported request - Errorcode: " + err.request.response.code + " - Message: " + err.request.response.message);
+                                localStorage.setItem('WMESTSChannelType', "");
+                        }
+                        break;
+                    default:
+                        log("Error sending request - Errorcode: " + err.request.response.code + " - Message: " + err.request.response.message);
+                }
+            } else {
+                log("Error sending request - No reponse received");
+            }
+        })
+};
+
 init();
