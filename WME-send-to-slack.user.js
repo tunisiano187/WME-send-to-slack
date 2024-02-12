@@ -521,30 +521,30 @@ ${closureTelegramDetails}${telegramDetails}`;
     if(Reason !== 'Cancelled' && chanel !== "" && abort === false) {
         for (var key in serverDB[localStorage.getItem('WMESTSServer')])
         {
+            log('Chanel : ' + chanel);
+            var actionicon = "";
+            log(iconaction)
+            switch (iconaction.toLowerCase()) {
+                case "closure":
+                    actionicon = "road_closed"
+                    break;
+                case "open":
+                    actionicon = "open_closure"
+                    break;
+                case "lock":
+                    actionicon = "lock"
+                    break;
+                case "downlock":
+                    actionicon = "unlock"
+                    break;
+                case "validation":
+                    actionicon = "heavy_check_mark"
+                    break;
+                default:
+                    actionicon = "pencil2"
+            }
             switch (key.toLowerCase()) {
                case "slack":
-                    log('Chanel : ' + chanel);
-                    var actionicon="";
-                    log(iconaction)
-                    switch(iconaction.toLowerCase()) {
-                        case "closure":
-                            actionicon = "road_closed"
-                            break;
-                        case "open":
-                            actionicon = "open_closure"
-                            break;
-                        case "lock":
-                            actionicon = "lock"
-                            break;
-                        case "downlock":
-                            actionicon = "unlock"
-                            break;
-                        case "validation":
-                            actionicon = "heavy_check_mark"
-                            break;
-                        default:
-                            actionicon = "pencil2"
-                    }
                     $.ajax({
                         data: 'payload=' + JSON.stringify({
                             "text": TextToSend,
@@ -564,29 +564,6 @@ ${closureTelegramDetails}${telegramDetails}`;
                     sent=sent+1;
                     break;
                 case "discord":
-                    log('Channel : ' + chanel);
-                    var actionicon = "";
-                    log(iconaction);
-                    switch(iconaction.toLowerCase()) {
-                        case "closure":
-                            actionicon = "road_closed";
-                            break;
-                        case "open":
-                            actionicon = "open_closure";
-                            break;
-                        case "lock":
-                            actionicon = "lock";
-                            break;
-                        case "downlock":
-                            actionicon = "unlock";
-                            break;
-                        case "validation":
-                            actionicon = "heavy_check_mark";
-                            break;
-                        default:
-                            actionicon = "pencil2";
-                    }
- 
                     let channelType = localStorage.getItem('WMESTSChannelType');
                     if (!channelType) {
                         channelType = "Text"; // First guess: text channel
