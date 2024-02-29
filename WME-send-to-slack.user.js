@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.02.22.01
+// @version         2024.02.29.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -64,7 +64,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2024.01.23.01': 'Fix missing state and country names.',
     '2024.02.07.01': 'Ask for reason on validation action.',
     '2024.02.20.01': 'Adding Croatia',
-    '2024.02.22.01': 'New: Discord Forum channels are now supported.'
+    '2024.02.22.01': 'New: Discord Forum channels are now supported.',
+    '2024.02.29.01': 'Update Croatia'
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -518,7 +519,7 @@ ${closureTelegramDetails}${telegramDetails}`;
     // Get the webhooks
 
     var promise;
-    
+
     if(Reason !== 'Cancelled' && chanel !== "" && abort === false) {
         for (var key in serverDB[localStorage.getItem('WMESTSServer')])
         {
@@ -569,17 +570,17 @@ ${closureTelegramDetails}${telegramDetails}`;
                     if (!channelType) {
                         channelType = "Text"; // First guess: text channel
                     }
-  
+
                     let myEmbed = {
                         description: TextToSendDiscord
                     }
-    
+
                     let bodyTextchannel = {
                         username: "(L" + RequiredLevel + ") - " + iconactionlocale,
                         avatar_url: editoricon[RequiredLevel],
                         embeds: [myEmbed]
                     }
-   
+
                     let bodyForumchannel = {
                         username: "(L" + RequiredLevel + ") - " + iconactionlocale,
                         avatar_url: editoricon[RequiredLevel],
@@ -587,17 +588,17 @@ ${closureTelegramDetails}${telegramDetails}`;
                         thread_name: [CityName, StateName, CountryName].filter(Boolean).join(', '),
                         flags: 1 << 2 // SUPPRESS_EMBEDS
                     }
-    
+
                     let url = serverDB[localStorage.getItem('WMESTSServer')][key][chanel];
-   
+
                     let params = {
                         "url": url,
                         "Text": bodyTextchannel,
                         "Forum": bodyForumchannel
                     };
-    
+
                     promise = sendToDiscord(params, channelType, (channelType === "Text" ? "Forum" : "Text"));
-   
+
                     log(TextToSendDiscord);
                     break;
                 case "gform":
