@@ -508,14 +508,14 @@ function Construct(iconaction) {
     var userName = W.loginManager.user.getUsername();
     var userRank = WazeWrap.User.Rank();
     var TextToSend = ':' + translationsInfo[11][0] + RequiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(profileurl) + W.loginManager.user.getUsername() + "|" + W.loginManager.user.getUsername() + "> (*" + translationsInfo[11][0] + userRank + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
-    var TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details + "\r\n\r\npowered by [" + [ScriptName, ScriptVersion].join(" ") +"](https://wmests.bowlman.org)";
+    var TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
     var TexToSendTelegramMD = `${translationsInfo[11][0]}${RequiredLevel} *${translationsInfo[10][0]}:* [${W.loginManager.user.getUsername()}](www.waze.com/user/editor/${W.loginManager.user.getUsername()}) (*${userRank}*)
 *${translationsInfo[12][0]} :* [${textSelection}](${permalink})
 *${translationsInfo[13][0]} :* ${iconactionlocale}
 *${translationsInfo[14][0]} :* ${CityName}, ${StateName}, ${CountryName}
 ${closureTelegramDetails}${telegramDetails}`;
     TextToSend = TextToSend.replace('\r\n\r\n','\r\n');
-    TextToSendDiscord = TextToSendDiscord.replace('\r\n\r\n','\r\n');
+    TextToSendDiscord = TextToSendDiscord.replace('\r\n\r\n','\r\n') + "\r\n\r\npowered by [" + [ScriptName, ScriptVersion].join(" ") +"](https://wmests.bowlman.org)";
     // Get the webhooks
 
     var promise;
