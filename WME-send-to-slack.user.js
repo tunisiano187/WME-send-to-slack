@@ -470,21 +470,27 @@ function Construct(iconaction) {
             Reason = 'Cancelled'
         }
     } else if (iconaction == "Closure" || iconaction == "Open") {
-        if(iconaction == "Closure")
-        {
-            var date = new Date();
-            date.setDate(date.getDate() + 1);
-            var Reason = prompt(translationsInfo[6][0], translationsInfo[36][0] + " " + date.toLocaleDateString("fr-FR") + " A<->B");//Check Drive sheet
-            telegramReason = Reason;
-            if(Reason == null) {
-                Reason = 'Cancelled'
-            } else {
-                telegramReason = "*" + translationsInfo[7][0] + " :* " + Reason//"Details"
+        var date = new Date();
+        date.setDate(date.getDate() + 1);
+        var Reason;
+        if (iconaction == "Closure") {
+            Reason = prompt(translationsInfo[6][0], translationsInfo[36][0] + " " + date.toLocaleDateString("fr-FR") + " A<->B");//Check Drive sheet
+        } else {
+            Reason = AskReason();
+        }
+        telegramReason = Reason;
+        if (Reason == null) {
+            Reason = 'Cancelled';
+        } else {
+            telegramReason = "*" + translationsInfo[7][0] + " :* " + Reason;//"Details"
+            if (iconaction == "Closure") {
                 Reason = "\r\n" + translationsInfo[7][0] + " : " + Reason;//"Details"
-                Details = Details + Reason;
-                closureTelegramDetails = "*" + translationsInfo[8][0] + "*"//"Closure Details"
-                telegramDetails = telegramDetails + "\n" + telegramReason
+            } else {
+                Reason = "\r\n" + translationsInfo[1][0] + " : " + Reason;//"Reason"
             }
+            Details = Details + Reason;
+            closureTelegramDetails = "*" + translationsInfo[8][0] + "*";//"Closure Details"
+            telegramDetails = telegramDetails + "\n" + telegramReason;
         }
         chanel = "closures";
     }
