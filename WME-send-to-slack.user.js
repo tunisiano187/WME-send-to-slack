@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.03.02.01
+// @version         2024.03.03.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -66,7 +66,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2024.02.20.01': 'Adding Croatia',
     '2024.02.22.01': 'New: Discord Forum channels are now supported.',
     '2024.02.29.01': 'Update Croatia',
-    '2024.03.02.01': 'New: Ask for reason on open action.'    
+    '2024.03.03.01': 'New: Ask for reason on open action. Fix: Validation icon has been missing again'    
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -120,9 +120,8 @@ function init(e) {
     localization().then(() =>{
         if(window.location.href.indexOf("segment") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
-            $( "#WMESTSvalidation" ).remove();
-            $("#edit-panel > div > div > div > wz-section-header > div.header-actions").append('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
-            Loadactions()
+            appendValidationIcon();
+            Loadactions();
         }
     LoadTab();
     })
@@ -144,9 +143,7 @@ function init(e) {
                         log('Lock icons added');
                         $( "#WMESTSlock" ).remove();
                         $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
-                        $( "#WMESTSvalidation" ).remove();
-                        $("#edit-panel > div > div > div > wz-section-header > div.header-actions").append('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
-                        log('Validation icon added');
+                        appendValidationIcon();
                         Loadactions();
                     }
                     if (closureslistDiv) {
@@ -1098,5 +1095,49 @@ function sendToDiscord(params, first, fallback) {
             }
         })
 };
+
+function appendValidationIcon() {
+    let elem = document.querySelector("#edit-panel > div > div > div > wz-section-header");
+    const shadowRoot = elem.shadowRoot;
+    elem = shadowRoot.querySelector("div.wz-section-header");
+    if (elem === null) {
+        setTimeout(appendValidationIcon, 100);
+    } else {
+        const newDiv = document.createElement("div");
+        newDiv.id = "WMESTSvalidation";
+        newDiv.style = "margin-left: 20px";
+        newDiv.innerHTML = validationicon;
+
+        if (elem) {
+            elem.appendChild(newDiv);
+            log('Validation icon added');
+
+            //Add Listener
+            elem = elem.querySelector("div#WMESTSvalidation > img#slackPermalink");
+            elem.addEventListener("click", iconActionHandler);
+        }
+    }
+}
+
+function iconActionHandler(e) {
+    let target = e.target;
+    let iconaction = target.getAttribute("class");
+    log("click on " + iconaction);
+    if(CheckNeededParams()) {
+        log("Params set sent=" + sent);
+        if(sent>=1) {
+            log("already sent");
+            if (confirm(translationsInfo[17][0] + " ?")) {
+                log("send again");
+                sent=0;
+            }
+        }
+        if(sent==0) {
+            Construct(iconaction);
+        }
+    } else {
+        $(".slack-settings-tab").click();
+    }
+}
 
 init();
