@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.03.03.01
+// @version         2024.03.05.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -66,7 +66,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2024.02.20.01': 'Adding Croatia',
     '2024.02.22.01': 'New: Discord Forum channels are now supported.',
     '2024.02.29.01': 'Update Croatia',
-    '2024.03.03.01': 'New: Ask for reason on open action. Fix: Validation icon has been missing again'    
+    '2024.03.05.01': 'New: Ask for reason on open action. Fix: Validation icon has been missing again'    
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -1097,12 +1097,18 @@ function sendToDiscord(params, first, fallback) {
 };
 
 function appendValidationIcon() {
-    let elem = document.querySelector("#edit-panel > div > div > div > wz-section-header");
+    let elem = document.querySelector("#edit-panel");
     if (elem === null) {
         setTimeout(appendValidationIcon, 100);
         log("appendValidationIcon: edit-panel is still missing; retrying");
         return;
     }
+    elem = document.querySelector("#edit-panel > div > div");
+    if ((elem.className !== "segment-feature-editor") && (elem.className !== "venue-feature-editor")) {
+        log("appendValidationIcon: no segment nor venue selected; abort");
+        return; // Neither segment nor venue selected
+    }
+    elem = elem.querySelector("div > wz-section-header");
     const shadowRoot = elem.shadowRoot;
     elem = shadowRoot.querySelector("div.wz-section-header");
     if (elem === null) {
