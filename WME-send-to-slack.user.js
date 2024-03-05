@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.03.03.01
+// @version         2024.03.05.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -66,7 +66,7 @@ const _WHATS_NEW_LIST = { // New in this version
     '2024.02.20.01': 'Adding Croatia',
     '2024.02.22.01': 'New: Discord Forum channels are now supported.',
     '2024.02.29.01': 'Update Croatia',
-    '2024.03.03.01': 'New: Ask for reason on open action. Fix: Validation icon has been missing again'    
+    '2024.03.05.01': 'New: Ask for reason on open action. Fix: Validation icon has been missing again'    
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
