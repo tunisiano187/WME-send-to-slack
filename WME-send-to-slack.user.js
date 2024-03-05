@@ -1097,12 +1097,18 @@ function sendToDiscord(params, first, fallback) {
 };
 
 function appendValidationIcon() {
-    let elem = document.querySelector("#edit-panel > div > div > div > wz-section-header");
+    let elem = document.querySelector("#edit-panel");
     if (elem === null) {
         setTimeout(appendValidationIcon, 100);
         log("appendValidationIcon: edit-panel is still missing; retrying");
         return;
     }
+    elem = document.querySelector("#edit-panel > div > div");
+    if ((elem.className !== "segment-feature-editor") && (elem.className !== "venue-feature-editor")) {
+        log("appendValidationIcon: no segment nor venue selected; abort");
+        return; // Neither segment nor venue selected
+    }
+    elem = elem.querySelector("div > wz-section-header");
     const shadowRoot = elem.shadowRoot;
     elem = shadowRoot.querySelector("div.wz-section-header");
     if (elem === null) {
