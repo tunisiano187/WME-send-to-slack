@@ -5,7 +5,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send unlock/closures/Validations requests to slack
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.02.29.01
+// @version         2024.03.05.01
 // @updateURL       https://greasyfork.org/scripts/408365-wme-send-to-slack/code/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
@@ -65,7 +65,8 @@ const _WHATS_NEW_LIST = { // New in this version
     '2024.02.07.01': 'Ask for reason on validation action.',
     '2024.02.20.01': 'Adding Croatia',
     '2024.02.22.01': 'New: Discord Forum channels are now supported.',
-    '2024.02.29.01': 'Update Croatia'
+    '2024.02.29.01': 'Update Croatia',
+    '2024.03.05.01': 'New: Ask for reason on open action. Fix: Validation icon has been missing again'    
 };
 // Var declaration
 var ScriptName = GM_info.script.name;
@@ -119,9 +120,8 @@ function init(e) {
     localization().then(() =>{
         if(window.location.href.indexOf("segment") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
-            $( "#WMESTSvalidation" ).remove();
-            $("#edit-panel > div > div > div > wz-section-header > div.header-actions").append('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
-            Loadactions()
+            appendValidationIcon();
+            Loadactions();
         }
     LoadTab();
     })
@@ -143,9 +143,7 @@ function init(e) {
                         log('Lock icons added');
                         $( "#WMESTSlock" ).remove();
                         $('.lock-edit-view').after('<div id="WMESTSlock">' + Downlockicon + '&nbsp;' + Relockicon + '</div>');
-                        $( "#WMESTSvalidation" ).remove();
-                        $("#edit-panel > div > div > div > wz-section-header > div.header-actions").append('<span id="WMESTSvalidation" style="margin-left: 20px">' + validationicon + '</div>');
-                        log('Validation icon added');
+                        appendValidationIcon();
                         Loadactions();
                     }
                     if (closureslistDiv) {
@@ -470,21 +468,27 @@ function Construct(iconaction) {
             Reason = 'Cancelled'
         }
     } else if (iconaction == "Closure" || iconaction == "Open") {
-        if(iconaction == "Closure")
-        {
-            var date = new Date();
-            date.setDate(date.getDate() + 1);
-            var Reason = prompt(translationsInfo[6][0], translationsInfo[36][0] + " " + date.toLocaleDateString("fr-FR") + " A<->B");//Check Drive sheet
-            telegramReason = Reason;
-            if(Reason == null) {
-                Reason = 'Cancelled'
-            } else {
-                telegramReason = "*" + translationsInfo[7][0] + " :* " + Reason//"Details"
+        var date = new Date();
+        date.setDate(date.getDate() + 1);
+        var Reason;
+        if (iconaction == "Closure") {
+            Reason = prompt(translationsInfo[6][0], translationsInfo[36][0] + " " + date.toLocaleDateString("fr-FR") + " A<->B");//Check Drive sheet
+        } else {
+            Reason = AskReason();
+        }
+        telegramReason = Reason;
+        if (Reason == null) {
+            Reason = 'Cancelled';
+        } else {
+            telegramReason = "*" + translationsInfo[7][0] + " :* " + Reason;//"Details"
+            if (iconaction == "Closure") {
                 Reason = "\r\n" + translationsInfo[7][0] + " : " + Reason;//"Details"
-                Details = Details + Reason;
-                closureTelegramDetails = "*" + translationsInfo[8][0] + "*"//"Closure Details"
-                telegramDetails = telegramDetails + "\n" + telegramReason
+            } else {
+                Reason = "\r\n" + translationsInfo[1][0] + " : " + Reason;//"Reason"
             }
+            Details = Details + Reason;
+            closureTelegramDetails = "*" + translationsInfo[8][0] + "*";//"Closure Details"
+            telegramDetails = telegramDetails + "\n" + telegramReason;
         }
         chanel = "closures";
     }
@@ -508,14 +512,14 @@ function Construct(iconaction) {
     var userName = W.loginManager.user.getUsername();
     var userRank = WazeWrap.User.Rank();
     var TextToSend = ':' + translationsInfo[11][0] + RequiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(profileurl) + W.loginManager.user.getUsername() + "|" + W.loginManager.user.getUsername() + "> (*" + translationsInfo[11][0] + userRank + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
-    var TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details + "\r\n\r\npowered by [" + [ScriptName, ScriptVersion].join(" ") +"](https://wmests.bowlman.org)";
+    var TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconactionlocale + "\r\n" + translationsInfo[14][0] + " : " + CityName + separatorCity + StateName + separatorState + CountryName + Details;
     var TexToSendTelegramMD = `${translationsInfo[11][0]}${RequiredLevel} *${translationsInfo[10][0]}:* [${W.loginManager.user.getUsername()}](www.waze.com/user/editor/${W.loginManager.user.getUsername()}) (*${userRank}*)
 *${translationsInfo[12][0]} :* [${textSelection}](${permalink})
 *${translationsInfo[13][0]} :* ${iconactionlocale}
 *${translationsInfo[14][0]} :* ${CityName}, ${StateName}, ${CountryName}
 ${closureTelegramDetails}${telegramDetails}`;
     TextToSend = TextToSend.replace('\r\n\r\n','\r\n');
-    TextToSendDiscord = TextToSendDiscord.replace('\r\n\r\n','\r\n');
+    TextToSendDiscord = TextToSendDiscord.replace('\r\n\r\n','\r\n') + "\r\n\r\npowered by [" + [ScriptName, ScriptVersion].join(" ") +"](https://wmests.bowlman.org)";
     // Get the webhooks
 
     var promise;
@@ -1091,5 +1095,60 @@ function sendToDiscord(params, first, fallback) {
             }
         })
 };
+
+function appendValidationIcon() {
+    let elem = document.querySelector("#edit-panel");
+    if (elem === null) {
+        setTimeout(appendValidationIcon, 100);
+        log("appendValidationIcon: edit-panel is still missing; retrying");
+        return;
+    }
+    elem = document.querySelector("#edit-panel > div > div");
+    if ((elem.className !== "segment-feature-editor") && (elem.className !== "venue-feature-editor")) {
+        log("appendValidationIcon: no segment nor venue selected; abort");
+        return; // Neither segment nor venue selected
+    }
+    elem = elem.querySelector("div > wz-section-header");
+    const shadowRoot = elem.shadowRoot;
+    elem = shadowRoot.querySelector("div.wz-section-header");
+    if (elem === null) {
+        setTimeout(appendValidationIcon, 100);
+    } else {
+        const newDiv = document.createElement("div");
+        newDiv.id = "WMESTSvalidation";
+        newDiv.style = "margin-left: 20px";
+        newDiv.innerHTML = validationicon;
+
+        if (elem) {
+            elem.appendChild(newDiv);
+            log('Validation icon added');
+
+            //Add Listener
+            elem = elem.querySelector("div#WMESTSvalidation > img#slackPermalink");
+            elem.addEventListener("click", iconActionHandler);
+        }
+    }
+}
+
+function iconActionHandler(e) {
+    let target = e.target;
+    let iconaction = target.getAttribute("class");
+    log("click on " + iconaction);
+    if(CheckNeededParams()) {
+        log("Params set sent=" + sent);
+        if(sent>=1) {
+            log("already sent");
+            if (confirm(translationsInfo[17][0] + " ?")) {
+                log("send again");
+                sent=0;
+            }
+        }
+        if(sent==0) {
+            Construct(iconaction);
+        }
+    } else {
+        $(".slack-settings-tab").click();
+    }
+}
 
 init();
