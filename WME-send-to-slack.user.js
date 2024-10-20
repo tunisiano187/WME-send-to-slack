@@ -778,7 +778,6 @@ function UpdateLanguages() {
 
 // Update the state in the Browser's database
 function UpdateStates() {
-    debugger;
     $('#WMESTSState option').each(function() {
         $(this).remove();
     });
@@ -805,7 +804,6 @@ function UpdateStates() {
 
 //SETTINGS TAB V2.0
 function LoadTab(){
-    debugger;
     let COUNTRY_SELECTOR = document.getElementById("WMESTSCountry")
     let STATE_SELECTOR = document.getElementById("WMESTSState")
     let CHANNEL_SELECTOR = document.getElementById("WMESTSLanguage")
