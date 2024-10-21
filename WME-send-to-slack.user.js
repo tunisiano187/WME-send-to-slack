@@ -25,7 +25,7 @@
 // @grant           GM_info
 // @grant           GM_xmlhttpRequest
 // ==/UserScript==
-/* global $ W */
+/* global $ W WazeWrap sheetsAPI suppLngs I18n serverDB OpenLayers countryDB stateDB Waze gFormDB languageDB*/
 
 // Updates informations
 var UpdateNotes = "";
@@ -115,6 +115,7 @@ function init(e) {
         log("WazeWrap used for alerts it's still loading so we'll wait or Edit Panel not ready");
         return;
     }
+    (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your TM settings... Unable to check for script updates'):undefined
     //Loading translations
     localization().then(() =>{
         /** if(window.location.href.indexOf("segment") > -1 || window.location.href.indexOf("editSuggestions") > -1) {
@@ -239,7 +240,7 @@ function autoLockClick (){
         log("Click on " + wmeLockLvl);
         document.querySelector("#segment-edit-general > form > div.lock-edit")
         $(wmeLockLvl).click();
-        WazeWrap.Alerts.info(SCRIPT_NAME, translationsInfo[39][0])
+        WazeWrap.Alerts.info(SCRIPT_NAME, "🔐")
     }
 }
 
