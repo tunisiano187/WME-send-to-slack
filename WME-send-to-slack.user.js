@@ -900,7 +900,7 @@ function getPermalinkCleaned(iconaction) {
     const mapCenter = new OpenLayers.Geometry.Point(center.lon, center.lat);
     const currentLocation = (new OpenLayers.LonLat(mapCenter.x, mapCenter.y)).transform(projI, projE).toString().replace(',', '&');
 
-    $.each(W.selectionManager.getSelectedFeatures(), function(indx, section){
+    $.each(W.selectionManager.getSelectedWMEFeatures(), function(indx, section){
         const data = section._wmeObject;
         if (featureType === "venue") {
             featureType = data.attributes.categories;
