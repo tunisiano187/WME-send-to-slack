@@ -340,6 +340,11 @@ function getCityID(selection, Type) {
     else {
         StreetID = selection.attributes.primaryStreetID;
     }
+    if (!StreetID) {
+        // lookup closest segment for (primary)StreetID
+        let closestSegment = WazeWrap.Geometry.findClosestSegment(selection.geometry, true, true)
+        StreetID = closestSegment.getAttribute('primaryStreetID');
+    }
     if(StreetID) {
         return W.model.streets.getObjectById(StreetID).attributes.cityID;
     } else {
