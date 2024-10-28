@@ -4,7 +4,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.10.27.01 (Beta)
+// @version         2024.10.28.01 (Beta)
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
@@ -184,16 +184,14 @@ function init() {
     */
     const editPanelObserver = new MutationObserver(function(mutations) {
         mutations.forEach((mutation) => {
-            // Mutation is a NodeList and doesn't support forEach like an array
-            for (let i = 0; i < mutation.addedNodes.length; i++) {
-                const addedNode = mutation.addedNodes[i];
-
+            const nodeList = mutation.addedNodes;
+            nodeList.forEach(addedNode => {
                 // Only fire up if it's a node
                 if (addedNode.nodeType === Node.ELEMENT_NODE) {
                     /** @returns `<div>` element. */
                     const lockLevelDiv = /**@type {Element} */(addedNode).querySelector('.lock-edit-view');
                     const closureListDiv = /**@type {Element} */(addedNode).querySelector('div.closures-list');
-                    const panel = /**@type {Element} */(addedNode).querySelector('#panel-container .edit-suggestion-panel');
+                    const panel = /**@type {Element} */(addedNode).querySelector('img[alt="suggester-level-icon"]');
 
                     if (lockLevelDiv) {
                         sent=0;
@@ -216,10 +214,11 @@ function init() {
                     }
                     if (panel) {
                         sent=0;
-                        appendValidationIcon();
+                        appendValidationIcon(addedNode);
                     }
                 }
             }
+        );
         });
     });
     editPanelObserver.observe(document.getElementById('edit-panel'), { childList: true, subtree: true });
@@ -229,19 +228,17 @@ function init() {
     */
     const panelObserver = new MutationObserver(function(mutations) {
         mutations.forEach((mutation) => {
-            // Mutation is a NodeList and doesn't support forEach like an array
-            for (let i = 0; i < mutation.addedNodes.length; i++) {
-                const addedNode = mutation.addedNodes[i];
-
+            const nodeList = mutation.addedNodes;
+            nodeList.forEach(addedNode => {
                 // Only fire up if it's a node
                 if (addedNode.nodeType === Node.ELEMENT_NODE) {
-                    const panel = /**@type {Element} */(addedNode).querySelector(' .edit-suggestion-panel');
+                    const panel = /**@type {Element} */(addedNode).querySelector('img[alt="suggester-level-icon"]');
                     if (panel) {
                         sent=0;
-                        appendValidationIcon();
+                        appendValidationIcon(addedNode);
                     }
                 }
-            }
+            });
         });
     });
     panelObserver.observe(document.getElementById('panel-container'), { childList: true, subtree: true });
@@ -410,6 +407,11 @@ function getCityID(selection, Type) {
     }
     else {
         StreetID = selection.attributes.primaryStreetID;
+    }
+    if (!StreetID) {
+        // lookup closest segment for (primary)StreetID
+        let closestSegment = WazeWrap.Geometry.findClosestSegment(selection.geometry, true, true)
+        StreetID = closestSegment.getAttribute('primaryStreetID');
     }
     if(StreetID) {
         return W.model.streets.getObjectById(StreetID).attributes.cityID;
@@ -592,7 +594,7 @@ function construct(iconAction) {
                     log("Editor Level check triggered, user decided to continue anyway.")
                     reason = AskReason();
                 }
-            } else if (iconAction !== 'Validation') {
+            } else {// ask always for reason to get a chance to abort
                 log("Editor Level checked, ask.")
                 reason = AskReason();
             }
@@ -1028,6 +1030,8 @@ function getPermalinkCleaned(iconaction) {
     let stateName = "";
     let selectedIndex = "";
     let selectionType = "&venues=";
+    let selectedIndex2 = ""; // used for Edit Suggestions
+    let selectionType2 = ""; // used for Edit Suggestions
     let requiredRank = 0;
     let shouldBeLockedAt = -5;
 
@@ -1037,78 +1041,112 @@ function getPermalinkCleaned(iconaction) {
     const mapCenter = new OpenLayers.Geometry.Point(center.lon, center.lat);
     const currentLocation = (new OpenLayers.LonLat(mapCenter.x, mapCenter.y)).transform(projI, projE).toString().replace(',', '&');
 
-    $.each(W.selectionManager.getSelectedFeatures(), function(indx, section){
-        const data = section._wmeObject;
-        if (featureType === "venue") {
-            featureType = String(data.attributes.categories);
+    if (iconaction !== "Validation") {
+        $.each(W.selectionManager.getSelectedWMEFeatures(), function (indx, section) {
+            const data = section._wmeObject;
+            if (data.type === "venue") {
+                featureType = data.attributes.categories;
+            }
+            if (selectedIndex !== "") {
+                selectedIndex = selectedIndex + ",";
+            }
+            selectedIndex = selectedIndex + data.attributes.id;
+
+            if (data.type === "camera") {
+                selectionType = "&cameras=";
+                featureType = "camera";
+                featureTypeName = translationsInfo[24][0]
+
+            } else if (data.type === "bigJunction") {
+                selectionType = "&bigJunctions=";
+                featureType = "JB";
+                featureTypeName = translationsInfo[25][0]
+
+            } else if (data.type === "mapComment") {
+                selectionType = "&mapComments=";
+                featureType = "map comment";
+                featureTypeName = translationsInfo[26][0]
+
+            } else if (data.type === "railroadCrossing") {
+                selectionType = "&railroadCrossings=";
+                featureType = "Railroad Crossing";
+                featureTypeName = translationsInfo[27][0]
+
+            } else if (data.type === "restrictedDrivingArea") {
+                selectionType = "&restrictedDrivingAreas=";
+                featureType = "Restricted Area";
+                featureTypeName = translationsInfo[37][0];
+
+            } else if (data.type === 'segment') {
+                if (iconaction === "Validation") {
+                    //do nothing here except prepare for the count-up
+                    count--;
+                } else {
+                    selectionType = "&segments=";
+                    featureType = "segment";
+                    featureTypeName = translationsInfo[28][0];
+                    shouldBeLockedAt = getShouldLockedAt(data, shouldBeLockedAt);
+                }
+
+            } else {
+                log("unknown data type");
+            }
+            count++;
+            if (data.attributes.lockRank !== null && data.attributes.lockRank > requiredRank) {
+                requiredRank = data.attributes.lockRank;
+            } else if (data.attributes.rank > requiredRank) {
+                requiredRank = data.attributes.rank;
+            }
+            const cityId = getCityID(data, featureType);
+            cityName = getCity(cityId);
+            if (cityName == null) {
+                cityName = "";
+            }
+            countryName = getCountry(cityId);
+            stateName = getState(cityId);
+            log("State Name : " + stateName);
+            if (stateName === false) {
+                stateName = "";
+                log("State Name : emptyied" + stateName);
+            }
+        });
+        if (shouldBeLockedAt === -5) {
+            shouldBeLockedAt = NaN;
+
         }
-        if (selectedIndex !== "") {
-            selectedIndex=selectedIndex + ",";
+    } else { // Validation request
+        const suggestionContainer = document.querySelector('img[alt="suggester-level-icon"]').parentElement.parentElement.parentElement;
+        const suggestionSubHeader = suggestionContainer.querySelector('[class^="subHeader"]');
+        if (suggestionSubHeader.childElementCount >= 2) {
+            const suggestionID = suggestionSubHeader.childNodes[1].innerText.replace('ID: ', '');
+            const suggestions = W.selectionManager.model.editSuggestions.getObjectArray();
+            const suggestion = suggestions[0].attributes.suggestions[0];
+            const segmentID = suggestion.entityEdits[0].objectId;
+            selectionType = "&segments=";
+            selectedIndex = segmentID;
+            selectionType2 = "&editSuggestions=";
+            selectedIndex2 = suggestionID;
+            featureType = "editSuggestion";
+            featureTypeName = "Edit Suggestion";
+            const data = W.selectionManager.model.segments.getObjectById(segmentID);
+            //TODO Resolve doubled block
+            const cityId = getCityID(data, "segment");
+            cityName = getCity(cityId);
+            if (cityName == null) {
+                cityName = "";
+            }
+            countryName = getCountry(cityId);
+            stateName = getState(cityId);
+            log("State Name : " + stateName);
+            if (stateName === false) {
+                stateName = "";
+                log("State Name : emptyied" + stateName);
+            }
+            count++;
         }
-        selectedIndex = selectedIndex + data.attributes.id;
-
-        if (data.type === "camera") {
-            selectionType="&cameras=";
-            featureType="camera";
-            featureTypeName = translationsInfo[24][0]
-
-        } else if (data.type === "bigJunction") {
-            selectionType="&bigJunctions=";
-            featureType="JB";
-            featureTypeName = translationsInfo[25][0]
-
-        } else if (data.type === "mapComment") {
-            selectionType="&mapComments=";
-            featureType="map comment";
-            featureTypeName = translationsInfo[26][0]
-
-        } else if (data.type === "railroadCrossing") {
-            selectionType="&railroadCrossings=";
-            featureType="Railroad Crossing";
-            featureTypeName = translationsInfo[27][0]
-
-        } else if (data.type === "restrictedDrivingArea") {
-            selectionType="&restrictedDrivingAreas=";
-            featureType="Restricted Area";
-            featureTypeName = translationsInfo[37][0];
-
-        } else if (data.type !== 'venue') {
-            selectionType="&segments=";
-            featureType="segment";
-            featureTypeName = translationsInfo[28][0];
-            shouldBeLockedAt = getShouldLockedAt(data, shouldBeLockedAt);
-
-        }
-        count++;
-        if (data.attributes.lockRank !== null && data.attributes.lockRank > requiredRank) {
-            requiredRank = data.attributes.lockRank;
-        } else if (data.attributes.rank > requiredRank) {
-            requiredRank = data.attributes.rank;
-        }
-        const cityId = getCityID(data, featureType);
-        cityName = getCity(cityId);
-        if (cityName == null) {
-            cityName = "";
-        }
-        countryName = getCountry(cityId);
-        stateName = getState(cityId);
-        log("State Name : " + stateName);
-        if (stateName === false) {
-            stateName = "";
-            log("State Name : emptyied" + stateName);
-        }
-    });
-    if (shouldBeLockedAt === -5) {
-        shouldBeLockedAt = null;
+    
     }
-    const suggestion = $(".edit-suggestion-panel .sub-header wz-caption");
-    if (suggestion.length >= 2) {
-        const segmentId = suggestion[1].innerText.replace('ID: ', '');
-        selectionType = "&editSuggestions=" + segmentId;
-        featureType="editSuggestion";
-        featureTypeName = "Edit Suggestion";
-    }
-    const PL = text + currentLocation + "&zoomLevel=" + W.map.getOLMap().getZoom() + selectionType + selectedIndex;
+    const PL = text + currentLocation + "&zoomLevel=" + W.map.getOLMap().getZoom() + selectionType + selectedIndex + selectionType2 + selectedIndex2;
     /**Feature Type Name to send. TODO: check what happens when multiple selections...
      * @type {string} */
     let type = featureTypeName;
@@ -1271,28 +1309,23 @@ function sendToDiscord(params, first, fallback) {
 /**
  * Create the {@link VALIDATION_ICON} into the `.edit-suggestion-panel`.
  * Till version `2024.10.20.01` being called from {@link init()}
+ * @param {*} node TODO: CHECK TYPE.....
  */
-function appendValidationIcon() {
-    let elem = document.querySelector(".edit-suggestion-panel");
+function appendValidationIcon(node) {
+    let elem = node?.querySelector('img[alt="suggester-level-icon"]');
     if (elem === null) {
-        //setTimeout(appendValidationIcon, 100); TODO: FIX LOOP
-        log("appendValidationIcon: edit-suggestion-panel is still missing;");
+        setTimeout(appendValidationIcon(node), 100);
+        log("appendValidationIcon: the suggestion panel is still missing; retrying");
         return;
     }
-    elem = document.querySelector(".edit-suggestion-panel .panel-header-actions");
-    if (elem === null) {
-        setTimeout(appendValidationIcon, 100); // TODO: FIX LOOP
-        log("appendValidationIcon: header section is missing");
-        return; // Neither segment nor venue selected
-    }
-
-    const newDiv = document.createElement("div");
-    newDiv.id = "WMESTSvalidation";
-    newDiv.style.setProperty("margin", "auto 10px");
-    newDiv.innerHTML = VALIDATION_ICON;
-
+    elem = node.querySelector('[class^="headerActions"]');
     if (elem) {
+        const newDiv = document.createElement("div");
+        newDiv.id = "WMESTSvalidation";
+        newDiv.style = "margin: auto 10px";
+        newDiv.innerHTML = VALIDATION_ICON;
         elem.appendChild(newDiv);
+        Loadactions();
         log('Validation icon added');
     }
 }
