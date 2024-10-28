@@ -27,8 +27,6 @@
 // ==/UserScript==
 /* global W OpenLayers $ I18n WazeWrap sheetsAPI suppLngs serverDB countryDB stateDB Waze gFormDB languageDB*/
 
-const { type } = require("./JQuery Definitions");
-
 // Updates informations
 const _WHATS_NEW_LIST = { // New in this version
     '2021.01.07.01': 'Solve closure tab problem',
