@@ -1423,7 +1423,7 @@ function getSegmentIDsBySuggestionID(suggestionID) {
 }
 
 /**
- * Returns an array with removed duclicate entries
+ * Returns an array with removed duplicate entries
  * @param {array} array
  * @returns {array}
 */
