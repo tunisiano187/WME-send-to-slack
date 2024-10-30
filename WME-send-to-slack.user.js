@@ -172,7 +172,9 @@ function init() {
     localization().then(() =>{
         if(window.location.href.indexOf("segment") > -1 || window.location.href.indexOf("editSuggestions") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + DOWNLOCK_ICON + '&nbsp;' + RE_LOCK_ICON + '</div>');
-            appendValidationIcon();
+            if (getEditSuggestionPanel()) {
+                appendValidationIcon();
+            }
             Loadactions();
         }
         tabPane.addEventListener("element-connected", LoadTab(), { once: true });
@@ -191,7 +193,6 @@ function init() {
                     /** @returns `<div>` element. */
                     const lockLevelDiv = /**@type {Element} */(addedNode).querySelector('.lock-edit-view');
                     const closureListDiv = /**@type {Element} */(addedNode).querySelector('div.closures-list');
-                    const panel = /**@type {Element} */(addedNode).querySelector('img[alt="suggester-level-icon"]');
 
                     if (lockLevelDiv) {
                         sent=0;
@@ -212,10 +213,12 @@ function init() {
                         }
                         Loadactions();
                     }
-                    if (panel) {
+                    /* // not necessary because there is no validation icon in edit panel
+                    if (getEditSuggestionPanel()) { // gets the element of the suggestion panel if it's visible
                         sent=0;
-                        appendValidationIcon(addedNode);
+                        appendValidationIcon();
                     }
+                    */
                 }
             }
         );
@@ -235,7 +238,7 @@ function init() {
                     const panel = /**@type {Element} */(addedNode).querySelector('img[alt="suggester-level-icon"]');
                     if (panel) {
                         sent=0;
-                        appendValidationIcon(addedNode);
+                        appendValidationIcon();
                     }
                 }
             });
@@ -571,12 +574,8 @@ function construct(iconAction) {
                 details = 'Cancelled';
             }
         } else if (iconAction === "Validation") {//VALIDATION for Suggestions...
-            const suggestion = $(".edit-suggestion-panel .sub-header wz-caption");
-            if (suggestion.length >= 2) {
-                const suggestionId = suggestion[1].innerText.replace('ID: ', '');
-                const suggestionModel = W.model.editSuggestions.objects[suggestionId];//TODO:Remove Object ID for Objects because deprecated...
-                details = suggestionModel.attributes.description;
-            }
+            const suggestionId = getEditSuggestionID();
+            details = getEditSuggestionAttributeByID(suggestionId, 'description');
         }
         if (details !== 'Cancelled') {//Formatting some text to send...
             telegramDetails = "*" + translationsInfo[4][0] + " :* " + details; //"Informations"
@@ -1115,36 +1114,20 @@ function getPermalinkCleaned(iconaction) {
 
         }
     } else { // Validation request
-        const suggestionContainer = document.querySelector('img[alt="suggester-level-icon"]').parentElement.parentElement.parentElement;
-        const suggestionSubHeader = suggestionContainer.querySelector('[class^="subHeader"]');
-        if (suggestionSubHeader.childElementCount >= 2) {
-            const suggestionID = suggestionSubHeader.childNodes[1].innerText.replace('ID: ', '');
-            const suggestions = W.selectionManager.model.editSuggestions.getObjectArray();
-            const suggestion = suggestions[0].attributes.suggestions[0];
-            const segmentID = suggestion.entityEdits[0].objectId;
-            selectionType = "&segments=";
-            selectedIndex = segmentID;
-            selectionType2 = "&editSuggestions=";
-            selectedIndex2 = suggestionID;
-            featureType = "editSuggestion";
-            featureTypeName = "Edit Suggestion";
-            const data = W.selectionManager.model.segments.getObjectById(segmentID);
-            //TODO Resolve doubled block
-            const cityId = getCityID(data, "segment");
-            cityName = getCity(cityId);
-            if (cityName == null) {
-                cityName = "";
-            }
-            countryName = getCountry(cityId);
-            stateName = getState(cityId);
-            log("State Name : " + stateName);
-            if (stateName === false) {
-                stateName = "";
-                log("State Name : emptyied" + stateName);
-            }
-            count++;
-        }
-    
+        const suggestionID = getEditSuggestionID();
+        const suggestion = getEditSuggestionByID(suggestionID);
+        const segmentsIDs = uniquifyArray(getSegmentIDsBySuggestionID(suggestionID));
+        selectionType = "&segments=";
+        selectedIndex = segmentsIDs.join(',');
+        selectionType2 = "&editSuggestions=";
+        selectedIndex2 = suggestionID;
+        featureType = "editSuggestion";
+        featureTypeName = "Edit Suggestion";
+        let location = getLocationBySegmentID(segmentsIDs[0]);
+        cityName = location.cityName;
+        stateName = location.stateName;
+        countryName = location.countryName;
+        count++;
     }
     const PL = text + currentLocation + "&zoomLevel=" + W.map.getOLMap().getZoom() + selectionType + selectedIndex + selectionType2 + selectedIndex2;
     /**Feature Type Name to send. TODO: check what happens when multiple selections...
@@ -1307,19 +1290,22 @@ function sendToDiscord(params, first, fallback) {
       })
 };
 /**
- * Create the {@link VALIDATION_ICON} into the `.edit-suggestion-panel`.
+ * Create the {@link VALIDATION_ICON} into the suggestion panel.
  * Till version `2024.10.20.01` being called from {@link init()}
- * @param {*} node TODO: CHECK TYPE.....
  */
-function appendValidationIcon(node) {
-    let elem = node?.querySelector('img[alt="suggester-level-icon"]');
-    if (elem === null) {
-        setTimeout(appendValidationIcon(node), 100);
+function appendValidationIcon() {
+    let panel = getEditSuggestionPanel();
+    if (panel === null) {
+        setTimeout(appendValidationIcon(), 100);
         log("appendValidationIcon: the suggestion panel is still missing; retrying");
         return;
     }
-    elem = node.querySelector('[class^="headerActions"]');
+    let elem = document.querySelector('[class^="headerActions"]');
     if (elem) {
+        const oldIcon = elem.querySelector('[id="WMESTSvalidation"]');
+        if (oldIcon) {
+            oldIcon.remove();
+        };
         const newDiv = document.createElement("div");
         newDiv.id = "WMESTSvalidation";
         newDiv.style = "margin: auto 10px";
@@ -1353,6 +1339,128 @@ function iconActionHandler(e) {
         $(".slack-settings-tab").click();
     }
 }
+
+/**
+ * Returns the edit suggestion panel node or null
+ * @returns {node}
+ */
+function getEditSuggestionPanel() {
+    const panel = document.querySelector('[id="panel-container"] > [class="panel show"] > [class^="panel"]');
+    const img = panel?.querySelector('[class^="suggestionCallToActions"]');
+    if (img) {
+        return panel;
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Returns the edit suggestion ID or 0
+ * @returns {string}
+ */
+ function getEditSuggestionID() {
+    const container = getEditSuggestionPanel();
+    const header = container.querySelector('[class^="subHeader"]');
+    let suggestionID = 0;
+    if (header.childElementCount >= 2) {
+        suggestionID = header.childNodes[1].innerText.replace('ID: ', '');
+    }
+    return suggestionID;
+}
+
+/**
+ * Returns the edit suggestion of a given suggestion ID or null
+ * @param {string} suggestionID
+ * @returns {object}
+ */
+function getEditSuggestionByID(suggestionID) {
+    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();
+    const suggestion = suggestionsArray.filter(s => {
+        return s.getAttribute('id') == suggestionID;
+    });
+    if (suggestion) {
+        return suggestion[0];
+    } else {
+        return null;
+    }
+}
+
+/**
+ * Returns an edit suggestion attribute of a given suggestion ID or null
+ * @param {number} suggestionID
+ * @param {string} attributeKey
+ * @returns {string}
+ */
+function getEditSuggestionAttributeByID(suggestionID, attributeKey) {
+    let attributeValue = null;
+    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();
+    const suggestion = suggestionsArray.filter(s => {
+        return s.getAttribute('id') == suggestionID;
+    })[0];
+    if (suggestion) {
+        attributeValue = suggestion.getAttribute(attributeKey);
+    }
+    return attributeValue;
+}
+
+/**
+ * Returns the segment ids of all affected segments of a given suggestion by ID
+ * @param {string} suggestionID
+ * @returns {array}
+ */
+function getSegmentIDsBySuggestionID(suggestionID) {
+    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();
+    const suggestion = suggestionsArray.filter(s => {
+        return s.getAttribute('id') == suggestionID;
+    })[0];
+    let segments = [];
+    suggestion.attributes.suggestions.forEach((s) => {
+        s.entityEdits.forEach((e) => {
+            segments.push(e.objectId);
+        });
+    });
+    return segments;
+}
+
+/**
+ * Returns an array with removed duclicate entries
+ * @param {array} array
+ * @returns {array}
+*/
+function uniquifyArray(array) {
+    const uniqueArray = [...new Set(array)];
+    return uniqueArray;
+}
+
+/**
+ * Get Cityname, Statename and Countryname from segmentID
+ * @param {string} id
+ * @returns {object}
+ */
+function getLocationBySegmentID(id) {
+    let cityName = "";
+    let stateName = "";
+    let countryName = "";
+    if (id) {
+        const data = W.selectionManager.model.segments.getObjectById(id);
+        if (data) {
+            const cityId = getCityID(data, "segment");
+            cityName = getCity(cityId);
+            if (cityName == null) {
+                cityName = "";
+            }
+            countryName = getCountry(cityId);
+            stateName = getState(cityId);
+            log("State Name : " + stateName);
+            if (stateName === false) {
+                stateName = "";
+                log("State Name : emptyied" + stateName);
+            }
+        }
+    }
+    return {cityName, stateName, countryName};
+}
+
 log("Load");
 // Script starts here...
 if (W?.userscripts?.state.isReady) {
