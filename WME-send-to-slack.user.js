@@ -1300,7 +1300,7 @@ function appendValidationIcon() {
         log("appendValidationIcon: the suggestion panel is still missing; retrying");
         return;
     }
-    let elem = document.querySelector('[class^="headerActions"]');
+    let elem = panel.querySelector('[class^="headerActions"]');
     if (elem) {
         const oldIcon = elem.querySelector('[id="WMESTSvalidation"]');
         if (oldIcon) {
