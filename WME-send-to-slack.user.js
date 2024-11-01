@@ -4,9 +4,10 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.10.28.01 (Beta)
+// @version         2024.10.31.01 (Beta)
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
+// TODO CHECK INCLUDE.... and EXCLUDES...
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -22,13 +23,14 @@
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
 // @contributionURL http://ko-fi.com/tunisiano
-// @grant           GM_info
-// @grant           GM_xmlhttpRequest
+// @grant           none
 // ==/UserScript==
 /* global W OpenLayers $ I18n WazeWrap sheetsAPI suppLngs serverDB countryDB stateDB Waze gFormDB languageDB*/
 
+//const { WmeSDK } = require("./WmeSDK"); //FOR DEVELOPER PURPOSES ONLY, SHALL NOT GO LIVE...
+
 // Updates informations
-const _WHATS_NEW_LIST = { // New in this version
+const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2021.01.07.01': 'Solve closure tab problem',
     '2021.01.20.01': 'Telegram for Columbia',
     '2021.02.19.01': 'Quick fix for lastest WME version',
@@ -68,14 +70,21 @@ const _WHATS_NEW_LIST = { // New in this version
     '2024.06.01.01': 'Fixed script after last WME update, moved validation icon into edit suggestions',
     '2024.10.20.01': 'Important changes, nothing visible. Thanks for using the script.\n*Native WME Script API Migration\n*Constants\n*Some deletions\n*Auto Lock Fixed\n*Advice Info added.',
     '2024.10.27.01 (Beta)': 'Implementing JSDOC and some Types Checks.. Documentation still pending but this will suffix minimal doc. Final Fix for AutoLock and some fixes noted by // @ts-check'
-};
-// Global Vars declaration
-/** Script name retrieved from `UserScript:name` tag. Actual Script Name @type {string}. Global const WMESTS */
+});
+// Global Vars declaration only or some critical configs (must be easy to modify so it's set here instead of a let bar into a function)
+/** Script name retrieved from `UserScript:name` tag. Actual Script Name @type {string}. Global const WMESTS @constant*/
 const SCRIPT_NAME = GM_info.script.name;
-/** Script version retrieved from `UserScript:version` tag. Actual version @type {string}. Global const WMESTS*/
+/** Script version retrieved from `UserScript:version` tag. Actual version @type {string}. Global const WMESTS @constant*/
 const SCRIPT_VERSION = GM_info.script.version;
-/** Any `ID` string for creating the WME Tab as documented in the WME API Docs. Just a Global const WMESTS in case of needing a change in the future.*/
-const SCRIPT_TAB_CODE = "WME-sts"
+/** Any `ID` string for creating the WME Tab as documented in the WME API Docs OR an script ID for initializing the WMESDK. Just a Global const WMESTS in case of needing a change in the future. @type {string} @constant*/
+const SCRIPT_ID = "WME:STS"
+/**
+ * @type {WmeSDK} Used to get {@link getWmeSdk()}
+ * @constant
+ */
+let wmeSDK_STS;
+/**Parameters passed to {@link window.getWmeSdk()} @type {object} @constant*/
+const WMESTS_SDKPARAMS = Object.freeze({scriptId: SCRIPT_ID, scriptName: SCRIPT_NAME})
 /**
  * This var evals if the {@link Loadactions()} function has been previously called.
  * @type {number}  If so, value changes to 1. This it's Global var WMESTS.
@@ -99,6 +108,18 @@ let wmeGETparams = new URLSearchParams(document.location.search.substring(1));
 let wmeStsTo = wmeGETparams.get('wmeststo')!==null ? Number(wmeGETparams.get('wmeststo')) : null //Fix implemented, when null is Number() it's converted to 0
 /**KILL SWITCH @default false */
 var abort = false;
+/**
+ * Settings config `HTML` to be injected into the `tabPane` HTML of the `RegisterSidebarTabResult` Interface of the {@link WmeSDK} sidebar Tab.  
+ * Shall only be used once in the script.
+ * @type {string}
+ * @constant
+ */
+const WMESTS_CONFIGS_HTML = `<label class="control-label" id="country-tag-sts"></label>
+<select id="WMESTSCountry"  class="form-control" style="margin: 8px 0px;"></select>
+<label class="control-label" id="state-tag-sts"></label>
+<select id="WMESTSState" class="form-control" style="margin: 8px 0px;"></select>
+<label class="control-label" id="channel-tag-sts"></label>
+<select id="WMESTSLanguage" class="form-control" style="margin: 8px 0px;"></select>`
 
 // Icons in Constants
 /** `CSS` `opacity` property for some icons. Used in {@link DOWNLOCK_ICON} | {@link RE_LOCK_ICON} | {@link CLOSURE_ICON} | {@link OPEN_ICON}| {@link VALIDATION_ICON} @constant*/
@@ -125,7 +146,7 @@ const SETTINGS_ICON = '<img height="25px;" src="data:image/png;base64,iVBORw0KGg
  */
 var sent = 0;
 /**Editor Icons used for Bot Profile image when sending the requests through Discord @constant*/
-const EDITOR_ICONS = {
+const EDITOR_ICONS = Object.freeze({
     1: "https://storage.googleapis.com/wazeopedia-files/0/0d/20_Map_editor_1.png",
     2: "https://storage.googleapis.com/wazeopedia-files/1/13/21_Map_editor_2.png",
     3: "https://storage.googleapis.com/wazeopedia-files/c/cb/22_Map_editor_3.png",
@@ -133,16 +154,16 @@ const EDITOR_ICONS = {
     5: "https://storage.googleapis.com/wazeopedia-files/8/87/24_Map_editor_5.png",
     6: "https://storage.googleapis.com/wazeopedia-files/6/6b/25_Map_editor_6.png",
     7: "",
-}
+})
 
 /**
  * **Main program function** - Initialization.  
- * 1. Checks for WazeWrap Load and edit panel readiness
+ * 1. Checks for WazeWrap Load
  * 2. Checks If script will Update
  * 3. Defines the Settings tab. HTML
  * 4. Loads the settings tab
  * 5. Loads {@link localization()} Translations
- * 6. Checks if the `TabPane` it's in the `DOM` and loads the Tab by calling {@link LoadTab()}
+ * 6. Requires for `registerSidebarTabResult` Interface and loads the Tab by calling {@link LoadTab()}
  * 7. Checks if it's a PL Open and calls {@link autoLockClick()} | {@link appendValidationIcon()} | {@link Loadactions()}
  * 8. Checks for Changes in the Edit Panel and in the panel section via a `MutationObserver` object
  * 9. Sets {@link sent} to `0`
@@ -150,24 +171,24 @@ const EDITOR_ICONS = {
  *
  */
 function init() {
-    if (!WazeWrap?.Ready || !document.getElementById('edit-panel')) {
+    if (!WazeWrap?.Ready /* CHECKING FOR EDIT PANEL MAY NOT BE NEEDED ANYMORE>>>>>>|| !document.getElementById('edit-panel')*/) {
     setTimeout(init, 800);
-    log("WazeWrap used for alerts it's still loading so we'll wait or Edit Panel not ready");
+    log("WazeWrap used for alerts it's still loading so we'll wait");
     return;
     }
     (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your TM settings... Unable to check for script updates'):undefined
     //Settings Tab
-    const { tabLabel, tabPane } = W.userscripts.registerSidebarTab(SCRIPT_TAB_CODE);
-
-    tabLabel.innerHTML = SETTINGS_ICON;
-    tabLabel.title = SCRIPT_NAME;
-
-    tabPane.innerHTML = `<label class="control-label" id="country-tag-sts"></label>
-    <select id="WMESTSCountry"  class="form-control" style="margin: 8px 0px;"></select>
-    <label class="control-label" id="state-tag-sts"></label>
-    <select id="WMESTSState" class="form-control" style="margin: 8px 0px;"></select>
-    <label class="control-label" id="channel-tag-sts"></label>
-    <select id="WMESTSLanguage" class="form-control" style="margin: 8px 0px;"></select>`;
+    wmeSDK_STS.Sidebar.registerScriptTab()
+        .then((RegisterSidebarTabResult)=>{
+            const { tabLabel, tabPane } = RegisterSidebarTabResult;
+            tabLabel.innerHTML = SETTINGS_ICON;
+            tabLabel.title = SCRIPT_NAME;
+            tabPane.innerHTML = WMESTS_CONFIGS_HTML;
+        })
+        .catch(()=>{
+            WazeWrap.Alerts.error(SCRIPT_NAME, "Unable to load the SideBar Tab...")
+            log("Unable to load the SideBar Tab...")
+        });
     //Loading translations
     localization().then(() =>{
         if(window.location.href.indexOf("segment") > -1 || window.location.href.indexOf("editSuggestions") > -1) {
@@ -177,12 +198,13 @@ function init() {
             }
             Loadactions();
         }
-        tabPane.addEventListener("element-connected", LoadTab(), { once: true });
+        LoadTab()
     })
     wmeStsTo !== null ? autoLockClick():undefined; //Check if it's a PL open
 
     /**Check for changes in the edit-panel.  
-     * Waze Left Side Edit Panel used for editing `Segments` and other types of {@link W.DataModelObject}..
+     * Waze Left Side Edit Panel used for editing `Segments` and other types of `SDK > DataModelObject`
+     * @see DataModelObject SDK class.
     */
     const editPanelObserver = new MutationObserver(function(mutations) {
         mutations.forEach((mutation) => {
@@ -208,7 +230,7 @@ function init() {
                         //Conditional no longer required...
                         $('.closures-list').before('<div id="WMESTSclosures">' + CLOSURE_ICON + '&nbsp;' + OPEN_ICON + '</div>');
                         $('.closures-list').height("auto");
-                        if(W.model.roadClosures.getObjectArray().length == 0) {
+                        if(wmeSDK_STS.DataModel.RoadClosures.getAll().length == 0) {
                             $('.closures-list').height("auto");
                         }
                         Loadactions();
@@ -257,10 +279,10 @@ function init() {
  * Requests don't pass through WME console window but Tampermonkey extension console window.
  * Since Waze Staff stated that added all the required domains to the CSP policy this should not be required anymore.  
  * Till version `2024.10.20.01` being called from {@link localization()}
- * @deprecated
  * @param {("GET"|"POST")} type
  * @param {string} url
  * @returns {Promise}
+ * @deprecated Avoid conflicts with WMESDK when @ grant is used window object changes... so now grant is none
 */
 function makeHTTPRequest(type, url) {
     return new Promise((resolve, reject) => {
@@ -318,7 +340,7 @@ async function localization () {
         const CONNECT_TWO = "!" + sheetsAPI.range + "?key=" + sheetsAPI.key
         var statusSheetsCallback = false
         //Trying to make Beta vs. Prod. Compatibility - HTTP | Since CSP Bug it's fixed shall not be used anymore
-        if (location.host == "beta.waze.com"){
+        if (false){//USELESS CODE TODO: DELETE
             await makeHTTPRequest('GET', CONNECT_ONE + sheetName + CONNECT_TWO)
               .then( function(response) {
                   $.each( response.values, function( key, val ) {
@@ -336,7 +358,7 @@ async function localization () {
                   console.log(response)
               });
         }else{
-            await $.get(CONNECT_ONE + i18n + CONNECT_TWO)
+            await $.get(CONNECT_ONE + i18n + CONNECT_TWO)//TODO: Use Fetch...
               .then( function(data) {
                   $.each( data.values, function( key, val ) {
                       if (!(Array.isArray(val) && val.length)) {
@@ -362,20 +384,20 @@ async function localization () {
         //Closing async f(x)
     }
     //Checking if require translations different from any english language
-    if (I18n.locale != "en-US" && I18n.locale != "en-GB" && I18n.locale != "en-AU" && I18n.locale != I18n.defaultLocale) {
+    if (!(["en-US","en-AU","en-GB"].includes(wmeSDK_STS.Settings.getLocale().localeCode)) && wmeSDK_STS.Settings.getLocale().localeCode != I18n.defaultLocale) {
         //Checking if the language is available for display
-        if (suppLngs.includes(I18n.locale)) {
-            sheetName = I18n.locale
+        if (suppLngs.includes(wmeSDK_STS.Settings.getLocale().localeCode)) {
+            sheetName = wmeSDK_STS.Settings.getLocale().localeCode
             try {
                 const waiting = await requestTranslations(sheetName)//Modify and ask for local storage before call the request
             } catch (e) {
                 log("Error while calling 'requestTranslations' function");
             }
-        }else if (!(suppLngs.includes(I18n.locale))) {
+        }else if (!(suppLngs.includes(wmeSDK_STS.Settings.getLocale().localeCode))) {
             if (localStorage.getItem('WMESTSlangalert') === SCRIPT_VERSION && 'WMESTSlangalert' in localStorage) {
                 log('Alert already sent with this version')
             } else {
-                WazeWrap.Alerts.warning(SCRIPT_NAME, 'This language is not yet supported, loading default. Do you want a translation? ask your community, or send a request to wmests@fire.fundersclub.com with a gmail account to became localizator. Missing locale is: ' + I18n.locale)
+                WazeWrap.Alerts.warning(SCRIPT_NAME, 'This language is not yet supported, loading default. Do you want a translation? ask your community, or send a request to wmests@fire.fundersclub.com with a gmail account to became localizator. Missing locale is: ' + wmeSDK_STS.Settings.getLocale().localeCode)
                 localStorage.setItem('WMESTSlangalert', SCRIPT_VERSION);
             }
             log("Loading default locale")
@@ -397,12 +419,13 @@ async function localization () {
 }
 
 /**
- * Get the `cityID` from the {@link W.DataModelObject.attributes} from a Segment or a Venue with the associated `StreetID` of the {@link W.DataModelObject}.  
+ * Get the `cityID` from the `DataModelObject.attributes` from a Segment or a Venue with the associated `StreetID` of the {@link W.DataModelObject}.  
  * Till version `2024.10.20.01` being called from {@link getPermalinkCleaned()}
- * @param {W.DataModelObject} selection {@link W.DataModelObject Data Model Object} selection.
+ * @param {W.DataModelObject} selection `DataModelObject` selection.
  * @param {string} Type Asks for a `segment` or `venue` type. //Previously only accepting("segment"|"venue")
+ * @see DataModelObject SDK class.
  */
-function getCityID(selection, Type) {
+function getCityID(selection, Type) {//TODO: SDK
     var StreetID = 0;
     if(Type != "segment")
     {
@@ -417,7 +440,7 @@ function getCityID(selection, Type) {
         StreetID = closestSegment.getAttribute('primaryStreetID');
     }
     if(StreetID) {
-        return W.model.streets.getObjectById(StreetID).attributes.cityID;
+        return wmeSDK_STS.DataModel.Streets.getById({streetId: StreetID})?.cityId
     } else {
         return 0;
     }
@@ -432,7 +455,7 @@ function getCity(CityId) {
     /**@type {string} */
     let cityName;
     if (CityId > 0) {
-        cityName = W.model.cities.getObjectById(CityId).attributes.name;
+        cityName = wmeSDK_STS.DataModel.Cities.getById({cityId: CityId})?.name;
     }
     if (!cityName) {
         cityName = $('span.full-address').text().split(",")[0];
@@ -448,8 +471,8 @@ function getCity(CityId) {
  */
 function getCountry(CityId) {
     if(CityId>0) {
-        var CountryID = W.model.cities.getObjectById(CityId).attributes.countryID;
-        return W.model.countries.getObjectById(CountryID).attributes.name;
+        let CountryID = wmeSDK_STS.DataModel.Cities.getById({cityId:CityId})?.countryId
+        return wmeSDK_STS.DataModel.Countries.getById({countryId: CountryID})?.name
     }
     else {
         return $('span.full-address').text().split(",")[$('span.full-address').text().split(",").length-1];
@@ -461,10 +484,13 @@ function getCountry(CityId) {
  * @param {number} CityId `City ID` or `0`
  */
 function getState(CityId) {
-    if(W.model.cities.getObjectById(CityId))
+    let StateID;
+    let State;
+    if(wmeSDK_STS.DataModel.Cities.getById({cityId:CityId}))
     {
-        var StateID = W.model.cities.getObjectById(CityId).attributes.stateID;
-        var State = W.model.states.getObjectById(StateID).attributes.name;
+        StateID = W.model.cities.getObjectById(CityId).attributes.stateID;//WMESDK NOT SUPPORTED... FEATURE REQUEST OPENED.
+        //State = W.model.states.getObjectById(StateID).attributes.name;
+        State = wmeSDK_STS.DataModel.States.getTopState()?.name ?? null // Not sure if this works as previously, if so, no StateID it's required.
         if(State===null)
         {
             return false;
@@ -583,7 +609,7 @@ function construct(iconAction) {
         }
         if (iconAction !== "Lock" || details !== 'Cancelled') {//UNLOCK
             //Alert the editor if he can edit himself
-            const lvlEditor = WazeWrap.User.Rank();
+            const lvlEditor = wmeSDK_STS.State.getUserInfo()?.rank+1;
             if (lvlEditor >= requiredLevel && iconAction !== 'Validation') {
                 if (confirm(translationsInfo[5][0]) === false) {//"You can perform this edit. Do you wish to continue?"
                     log("User can edit, so no edit is sent.")
@@ -659,12 +685,12 @@ function construct(iconAction) {
         abort=true;
         WazeWrap.Alerts.error(SCRIPT_NAME, translationsInfo[9][0]);//"Some segments aren't saved, please save them and try again"
     }
-    const profileurl = "https://www.waze.com/user/editor/";
-    const userName = W.loginManager.user.getUsername();
-    const userRank = WazeWrap.User.Rank();
-    let TextToSend = ':' + translationsInfo[11][0] + requiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(profileurl) + W.loginManager.user.getUsername() + "|" + W.loginManager.user.getUsername() + "> (*" + translationsInfo[11][0] + userRank + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;
-    let TextToSendDiscord = translationsInfo[10][0] + " : [" + userName + "](" + encodeURI(profileurl) + userName + ") (" + translationsInfo[11][0] + userRank + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;//TODO: Replace deprecated escape.
-    const TexToSendTelegramMD = `${translationsInfo[11][0]}${requiredLevel} *${translationsInfo[10][0]}:* [${W.loginManager.user.getUsername()}](www.waze.com/user/editor/${W.loginManager.user.getUsername()}) (*${userRank}*)
+    const PROFILE_URL_WME = "https://www.waze.com/user/editor/";
+    const USER_NAME_WME = wmeSDK_STS.State.getUserInfo()?.userName;
+    const USER_RANK_WME = wmeSDK_STS.State.getUserInfo()?.rank+1;
+    let TextToSend = ':' + translationsInfo[11][0] + requiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(PROFILE_URL_WME) + USER_NAME_WME + "|" + USER_NAME_WME + "> (*" + translationsInfo[11][0] + USER_RANK_WME + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;
+    let TextToSendDiscord = translationsInfo[10][0] + " : [" + USER_NAME_WME + "](" + encodeURI(PROFILE_URL_WME) + USER_NAME_WME + ") (" + translationsInfo[11][0] + USER_RANK_WME + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;//TODO: Replace deprecated escape.
+    const TexToSendTelegramMD = `${translationsInfo[11][0]}${requiredLevel} *${translationsInfo[10][0]}:* [${USER_NAME_WME}](www.waze.com/user/editor/${USER_NAME_WME}) (*${USER_RANK_WME}*)
 *${translationsInfo[12][0]} :* [${textSelection}](${permalink})
 *${translationsInfo[13][0]} :* ${iconActionLocale}
 *${translationsInfo[14][0]} :* ${cityName}, ${stateName}, ${countryName}
@@ -758,12 +784,12 @@ ${closureTelegramDetails}${telegramDetails}`;
                 case "gform"://TODO: Also maybe lets rather than vars
                     var projI=new OpenLayers.Projection("EPSG:900913");
                     var projE=new OpenLayers.Projection("EPSG:4326");
-                    var currentlocation = (new OpenLayers.LonLat(W.map.getCenter().lon,W.map.getCenter().lat)).transform(projI,projE).toString().replace('lon=','').replace("lat=","");
+                    var currentlocation = (new OpenLayers.LonLat(wmeSDK_STS.Map.getMapCenter().lon,wmeSDK_STS.Map.getMapCenter().lat)).transform(projI,projE).toString().replace('lon=','').replace("lat=","");
                     var GFormDBloc = gFormDB[localStorage.getItem('WMESTSServer')];
                     var datas = {};
                     datas[GFormDBloc.pl]=unescape(permalink);
-                    datas[GFormDBloc.username]=W.loginManager.user.getUsername();
-                    datas[GFormDBloc.editorlevel]=WazeWrap.User.Rank();
+                    datas[GFormDBloc.username]=wmeSDK_STS.State.getUserInfo()?.userName;
+                    datas[GFormDBloc.editorlevel]=wmeSDK_STS.State.getUserInfo()?.rank+1;
                     datas[GFormDBloc.levelrequired]=requiredLevel.toString().replace(/:/g,'').replace('l','');
                     datas[GFormDBloc.type]=selectedType;
                     datas[GFormDBloc.longlat]=currentlocation;
@@ -822,8 +848,7 @@ ${closureTelegramDetails}${telegramDetails}`;
 
 /**Prepare the role of the icons.  
  * Checks for the WMESTS buttons (Lock/Unlock/Validation/Closures) clicks and Calls for {@link iconActionHandler()}.
- * While this function it's being called it's never used... TODO:CHECK.. Actionsloaded will always be 0. Even so... why would we keep it?
- * @deprecated
+ * Only used once... TODO: CHECK OR FIND A WAY TO REPLACE IT.
 */
 function Loadactions() {
     if (actionsloaded !=1 ){//Action Buttons already loaded?.
@@ -999,7 +1024,7 @@ function LoadTab(){
  * @author GitHub:Glodenox
  * @author GitHub:Tunisiano18
  */
-function log(message, thisscript = SCRIPT_NAME + '(' + SCRIPT_VERSION + '):') { // Thanks to Glodenox but enhanced
+function log(message, thisscript = SCRIPT_NAME + '(' + SCRIPT_VERSION + ')') { // Thanks to Glodenox but enhanced
     if (typeof message === 'string') {
         console.log('%c' + thisscript + ' : %c' + message, 'color:black', 'color:#d97e00');
     } else {
@@ -1016,7 +1041,7 @@ function log(message, thisscript = SCRIPT_NAME + '(' + SCRIPT_VERSION + '):') { 
  */
 function getPermalinkCleaned(iconaction) {
     /**@type {string}*/
-    let text = "https://www.waze.com/editor?env=" + W.app.getAppRegionCode() + "&";
+    let text = "https://www.waze.com/editor?env=" + wmeSDK_STS.Settings.getRegionCode() + "&";
     let count = 0;
     /**@type {string} */
     let featureType = "venue";
@@ -1036,13 +1061,13 @@ function getPermalinkCleaned(iconaction) {
 
     const projI = new OpenLayers.Projection("EPSG:900913");
     const projE = new OpenLayers.Projection("EPSG:4326");
-    const center = W.map.getCenter();
+    const center = wmeSDK_STS.Map.getMapCenter();
     const mapCenter = new OpenLayers.Geometry.Point(center.lon, center.lat);
     const currentLocation = (new OpenLayers.LonLat(mapCenter.x, mapCenter.y)).transform(projI, projE).toString().replace(',', '&');
 
     if (iconaction !== "Validation") {
         $.each(W.selectionManager.getSelectedWMEFeatures(), function (indx, section) {
-            const data = section._wmeObject;
+            const data = section._wmeObject;//TODO: ADD WMESDK
             if (data.type === "venue") {
                 featureType = data.attributes.categories;
             }
@@ -1077,7 +1102,7 @@ function getPermalinkCleaned(iconaction) {
                 featureTypeName = translationsInfo[37][0];
 
             } else if (data.type === 'segment') {
-                if (iconaction === "Validation") {
+                if (iconaction === "Validation") {//TODO: Checks if needs to be deleted not used anymore since Script no validates segments.
                     //do nothing here except prepare for the count-up
                     count--;
                 } else {
@@ -1129,7 +1154,7 @@ function getPermalinkCleaned(iconaction) {
         countryName = location.countryName;
         count++;
     }
-    const PL = text + currentLocation + "&zoomLevel=" + W.map.getOLMap().getZoom() + selectionType + selectedIndex + selectionType2 + selectedIndex2;
+    const PL = text + currentLocation + "&zoomLevel=" + wmeSDK_STS.Map.getZoomLevel() + selectionType + selectedIndex + selectionType2 + selectedIndex2;
     /**Feature Type Name to send. TODO: check what happens when multiple selections...
      * @type {string} */
     let type = featureTypeName;
@@ -1336,13 +1361,13 @@ function iconActionHandler(e) {
             construct(/**@type {"Downlock" | "Lock" | "Validation" | "Closure" | "Open"}*/(iconAction));
         }
     } else {
-        $(".slack-settings-tab").click();
+        $(".slack-settings-tab").trigger("click");
     }
 }
 
 /**
  * Returns the edit suggestion panel node or null
- * @returns {node}
+ * @returns {Node}
  */
 function getEditSuggestionPanel() {
     const panel = document.querySelector('[id="panel-container"] > [class="panel show"] > [class^="panel"]');
@@ -1374,7 +1399,8 @@ function getEditSuggestionPanel() {
  * @returns {object}
  */
 function getEditSuggestionByID(suggestionID) {
-    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();
+    const suggestionsArray = wmeSDK_STS.DataModel
+    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();//Missing WME SDK. Request
     const suggestion = suggestionsArray.filter(s => {
         return s.getAttribute('id') == suggestionID;
     });
@@ -1393,7 +1419,7 @@ function getEditSuggestionByID(suggestionID) {
  */
 function getEditSuggestionAttributeByID(suggestionID, attributeKey) {
     let attributeValue = null;
-    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();
+    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();//Missing WME SDK. Request
     const suggestion = suggestionsArray.filter(s => {
         return s.getAttribute('id') == suggestionID;
     })[0];
@@ -1409,7 +1435,7 @@ function getEditSuggestionAttributeByID(suggestionID, attributeKey) {
  * @returns {array}
  */
 function getSegmentIDsBySuggestionID(suggestionID) {
-    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();
+    const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();//Missing WME SDK. Request
     const suggestion = suggestionsArray.filter(s => {
         return s.getAttribute('id') == suggestionID;
     })[0];
@@ -1442,7 +1468,7 @@ function getLocationBySegmentID(id) {
     let stateName = "";
     let countryName = "";
     if (id) {
-        const data = W.selectionManager.model.segments.getObjectById(id);
+        const data = wmeSDK_STS.DataModel.Segments.getById({segmentId: Number(id)})
         if (data) {
             const cityId = getCityID(data, "segment");
             cityName = getCity(cityId);
@@ -1460,15 +1486,21 @@ function getLocationBySegmentID(id) {
     }
     return {cityName, stateName, countryName};
 }
-
-log("Load");
-// Script starts here...
-if (W?.userscripts?.state.isReady) {
-    init()
-    log('WME chargé');
-} else {
-    document.addEventListener("wme-ready", init, {
-    once: true,
+log("Load")
+// Script starts here... Inits SDK and Checks for WME Readiness (happens only once when the wme-initialized, wme-logged-in, and wme-map-data-loaded had been dispatched).
+window.SDK_INITIALIZED
+    .then(()=>{
+        wmeSDK_STS = window.getWmeSdk(WMESTS_SDKPARAMS);
+        log(`Using ${wmeSDK_STS.getSDKVersion()} WME SDK VERSION`)
+        wmeSDK_STS.Events.once({eventName: "wme-ready"})
+            .then(init)//INIT THE SCRIPT
+            .catch(()=>{
+                log("WME NOT READY - FAILED...")
+                alert(`${SCRIPT_NAME}: Unexpected Error`)
+            });
+    })
+    .catch(()=>{
+        log("FATAL ERROR ... WME SDK FAILED....")
+        alert(`${SCRIPT_NAME}: FATAL ERROR`)
+        throw new Error(`${SCRIPT_NAME}: FATAL ERROR`)
     });
-    log('WME chargé');
-}
