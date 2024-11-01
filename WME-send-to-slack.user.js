@@ -27,8 +27,6 @@
 // ==/UserScript==
 /* global W OpenLayers $ I18n WazeWrap sheetsAPI suppLngs serverDB countryDB stateDB Waze gFormDB languageDB*/
 
-//const { WmeSDK } = require("./WmeSDK"); //FOR DEVELOPER PURPOSES ONLY, SHALL NOT GO LIVE...
-
 // Updates informations
 const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2021.01.07.01': 'Solve closure tab problem',
@@ -171,6 +169,7 @@ const EDITOR_ICONS = Object.freeze({
  *
  */
 function init() {
+    log('WME chargé');
     if (!WazeWrap?.Ready /* CHECKING FOR EDIT PANEL MAY NOT BE NEEDED ANYMORE>>>>>>|| !document.getElementById('edit-panel')*/) {
     setTimeout(init, 800);
     log("WazeWrap used for alerts it's still loading so we'll wait");
@@ -685,11 +684,12 @@ function construct(iconAction) {
         abort=true;
         WazeWrap.Alerts.error(SCRIPT_NAME, translationsInfo[9][0]);//"Some segments aren't saved, please save them and try again"
     }
-    const PROFILE_URL_WME = "https://www.waze.com/user/editor/";
-    const USER_NAME_WME = wmeSDK_STS.State.getUserInfo()?.userName;
+    //const PROFILE_URL_WME = "https://www.waze.com/user/editor/"; // PREVIOUS VERSION..
+    const USER_NAME_WME = wmeSDK_STS.State.getUserInfo()?.userName ?? "ERROR";
+    const FULL_PROFILE_URL_WME = wmeSDK_STS.DataModel.Users.getUserProfileLink({userName: USER_NAME_WME})
     const USER_RANK_WME = wmeSDK_STS.State.getUserInfo()?.rank+1;
-    let TextToSend = ':' + translationsInfo[11][0] + requiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(PROFILE_URL_WME) + USER_NAME_WME + "|" + USER_NAME_WME + "> (*" + translationsInfo[11][0] + USER_RANK_WME + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;
-    let TextToSendDiscord = translationsInfo[10][0] + " : [" + USER_NAME_WME + "](" + encodeURI(PROFILE_URL_WME) + USER_NAME_WME + ") (" + translationsInfo[11][0] + USER_RANK_WME + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;//TODO: Replace deprecated escape.
+    let TextToSend = ':' + translationsInfo[11][0] + requiredLevel + ": " + translationsInfo[10][0] + " : <" + escape(FULL_PROFILE_URL_WME) + "|" + USER_NAME_WME + "> (*" + translationsInfo[11][0] + USER_RANK_WME + "*)\r\n" + translationsInfo[12][0] + " : <" + escape(permalink) + "|" + textSelection + ">\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;
+    let TextToSendDiscord = translationsInfo[10][0] + " : [" + USER_NAME_WME + "](" + encodeURI(FULL_PROFILE_URL_WME) + ") (" + translationsInfo[11][0] + USER_RANK_WME + ")\r\n" + translationsInfo[12][0] + " : [" + textSelection + "](" + encodeURI(permalink) + ")" + "\r\n" + translationsInfo[13][0] + " : " + iconActionLocale + "\r\n" + translationsInfo[14][0] + " : " + cityName + separatorCity + stateName + separatorState + countryName + details;//TODO: Replace deprecated escape.
     const TexToSendTelegramMD = `${translationsInfo[11][0]}${requiredLevel} *${translationsInfo[10][0]}:* [${USER_NAME_WME}](www.waze.com/user/editor/${USER_NAME_WME}) (*${USER_RANK_WME}*)
 *${translationsInfo[12][0]} :* [${textSelection}](${permalink})
 *${translationsInfo[13][0]} :* ${iconActionLocale}
@@ -1399,7 +1399,6 @@ function getEditSuggestionPanel() {
  * @returns {object}
  */
 function getEditSuggestionByID(suggestionID) {
-    const suggestionsArray = wmeSDK_STS.DataModel
     const suggestionsArray = W.selectionManager.model.editSuggestions.getObjectArray();//Missing WME SDK. Request
     const suggestion = suggestionsArray.filter(s => {
         return s.getAttribute('id') == suggestionID;
