@@ -1435,7 +1435,7 @@ function getSegmentIDsBySuggestionID(suggestionID) {
     let segments = [];
     suggestion.attributes.suggestions.forEach((s) => {
         s.entityEdits.forEach((e) => {
-            segments.push(e.objectId);
+            segments.push(Number(e.objectId));
         });
     });
     return segments;
@@ -1453,18 +1453,18 @@ function uniquifyArray(array) {
 
 /**
  * Get Cityname, Statename and Countryname from segmentID
- * @param {string} id
+ * @param {number} segmentID
  * @returns {object}
  */
-function getLocationBySegmentID(id) {
+function getLocationBySegmentID(segmentID) {
     let cityName = "";
     let stateName = "";
     let countryName = "";
-    let segmentAddress = wmeSDK_STS.DataModel.Segments.getAddress({segmentId: Number(id)})
+    let segmentAddress = wmeSDK_STS.DataModel.Segments.getAddress({segmentId : segmentID});
     if ((segmentAddress) && (!segmentAddress.isEmpty)) {
         cityName = (!segmentAddress.city.isEmpty) ? segmentAddress.city.name : "";
         stateName = (!segmentAddress.state.isEmpty) ? segmentAddress.state.name : "";
-        countryName = (!segmentAddress.country.isEmpty) ? segmentAddress.state.name : "";
+        countryName = (!segmentAddress.country.isEmpty) ? segmentAddress.country.name : "";
     }
     return {cityName, stateName, countryName};
 }
