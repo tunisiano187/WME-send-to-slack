@@ -1374,7 +1374,7 @@ function getEditSuggestionPanel() {
 }
 
 /**
- * Returns the edit suggestion ID or 0
+ * Returns the edit suggestion ID or null
  * @returns {string}
  */
  function getEditSuggestionID() {
@@ -1460,22 +1460,11 @@ function getLocationBySegmentID(id) {
     let cityName = "";
     let stateName = "";
     let countryName = "";
-    if (id) {
-        const data = wmeSDK_STS.DataModel.Segments.getById({segmentId: Number(id)})
-        if (data) {
-            const cityId = getCityID(data, "segment");
-            cityName = getCity(cityId);
-            if (cityName == null) {
-                cityName = "";
-            }
-            countryName = getCountry(cityId);
-            stateName = getState(cityId);
-            log("State Name : " + stateName);
-            if (!stateName) {
-                stateName = "";
-                log("State Name : emptyied" + stateName);
-            }
-        }
+    let segmentAddress = wmeSDK_STS.DataModel.Segments.getAddress({segmentId: Number(id)})
+    if ((segmentAddress) && (!segmentAddress.isEmpty)) {
+        cityName = (!segmentAddress.city.isEmpty) ? segmentAddress.city.name : "";
+        stateName = (!segmentAddress.state.isEmpty) ? segmentAddress.state.name : "";
+        countryName = (!segmentAddress.country.isEmpty) ? segmentAddress.state.name : "";
     }
     return {cityName, stateName, countryName};
 }
