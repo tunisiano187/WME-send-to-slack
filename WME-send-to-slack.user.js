@@ -1464,7 +1464,7 @@ function getLocationBySegmentID(segmentID) {
     if ((segmentAddress) && (!segmentAddress.isEmpty)) {
         cityName = (!segmentAddress.city.isEmpty) ? segmentAddress.city.name : "";
         stateName = (!segmentAddress.state.isEmpty) ? segmentAddress.state.name : "";
-        countryName = (!segmentAddress.country.isEmpty) ? segmentAddress.state.name : "";
+        countryName = (!segmentAddress.country.isEmpty) ? segmentAddress.country.name : "";
     }
     return {cityName, stateName, countryName};
 }
