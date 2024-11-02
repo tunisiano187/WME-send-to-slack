@@ -1102,16 +1102,10 @@ function getPermalinkCleaned(iconaction) {
                 featureTypeName = translationsInfo[37][0];
 
             } else if (data.type === 'segment') {
-                if (iconaction === "Validation") {//TODO: Checks if needs to be deleted not used anymore since Script no validates segments.
-                    //do nothing here except prepare for the count-up
-                    count--;
-                } else {
-                    selectionType = "&segments=";
-                    featureType = "segment";
-                    featureTypeName = translationsInfo[28][0];
-                    shouldBeLockedAt = getShouldLockedAt(data, shouldBeLockedAt);
-                }
-
+                selectionType = "&segments=";
+                featureType = "segment";
+                featureTypeName = translationsInfo[28][0];
+                shouldBeLockedAt = getShouldLockedAt(data, shouldBeLockedAt);
             } else {
                 log("unknown data type");
             }
@@ -1321,7 +1315,7 @@ function sendToDiscord(params, first, fallback) {
 function appendValidationIcon() {
     let panel = getEditSuggestionPanel();
     if (panel === null) {
-        setTimeout(appendValidationIcon(), 100);
+        setTimeout(appendValidationIcon, 100);
         log("appendValidationIcon: the suggestion panel is still missing; retrying");
         return;
     }
@@ -1333,7 +1327,7 @@ function appendValidationIcon() {
         };
         const newDiv = document.createElement("div");
         newDiv.id = "WMESTSvalidation";
-        newDiv.style = "margin: auto 10px";
+        newDiv.style.margin = "auto 10px";
         newDiv.innerHTML = VALIDATION_ICON;
         elem.appendChild(newDiv);
         Loadactions();
@@ -1366,8 +1360,8 @@ function iconActionHandler(e) {
 }
 
 /**
- * Returns the edit suggestion panel node or null
- * @returns {Node}
+ * Returns the edit suggestion panel element or null
+ * @returns {Element}
  */
 function getEditSuggestionPanel() {
     const panel = document.querySelector('[id="panel-container"] > [class="panel show"] > [class^="panel"]');
@@ -1380,15 +1374,15 @@ function getEditSuggestionPanel() {
 }
 
 /**
- * Returns the edit suggestion ID or 0
+ * Returns the edit suggestion ID or null
  * @returns {string}
  */
  function getEditSuggestionID() {
     const container = getEditSuggestionPanel();
     const header = container.querySelector('[class^="subHeader"]');
-    let suggestionID = 0;
+    let suggestionID = null;
     if (header.childElementCount >= 2) {
-        suggestionID = header.childNodes[1].innerText.replace('ID: ', '');
+        suggestionID = header.childNodes[1].textContent.replace('ID: ', '');
     }
     return suggestionID;
 }
@@ -1412,7 +1406,7 @@ function getEditSuggestionByID(suggestionID) {
 
 /**
  * Returns an edit suggestion attribute of a given suggestion ID or null
- * @param {number} suggestionID
+ * @param {string} suggestionID
  * @param {string} attributeKey
  * @returns {string}
  */
@@ -1466,22 +1460,11 @@ function getLocationBySegmentID(id) {
     let cityName = "";
     let stateName = "";
     let countryName = "";
-    if (id) {
-        const data = wmeSDK_STS.DataModel.Segments.getById({segmentId: Number(id)})
-        if (data) {
-            const cityId = getCityID(data, "segment");
-            cityName = getCity(cityId);
-            if (cityName == null) {
-                cityName = "";
-            }
-            countryName = getCountry(cityId);
-            stateName = getState(cityId);
-            log("State Name : " + stateName);
-            if (stateName === false) {
-                stateName = "";
-                log("State Name : emptyied" + stateName);
-            }
-        }
+    let segmentAddress = wmeSDK_STS.DataModel.Segments.getAddress({segmentId: Number(id)})
+    if ((segmentAddress) && (!segmentAddress.isEmpty)) {
+        cityName = (!segmentAddress.city.isEmpty) ? segmentAddress.city.name : "";
+        stateName = (!segmentAddress.state.isEmpty) ? segmentAddress.state.name : "";
+        countryName = (!segmentAddress.country.isEmpty) ? segmentAddress.state.name : "";
     }
     return {cityName, stateName, countryName};
 }
