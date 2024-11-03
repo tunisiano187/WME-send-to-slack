@@ -1148,7 +1148,8 @@ function getPermalinkCleaned(iconaction) {
         countryName = location.countryName;
         count++;
     }
-    const PL = text + currentLocation + "&zoomLevel=" + wmeSDK_STS.Map.getZoomLevel() + selectionType + selectedIndex + selectionType2 + selectedIndex2;
+    //const PL = text + currentLocation + "&zoomLevel=" + wmeSDK_STS.Map.getZoomLevel() + selectionType + selectedIndex + selectionType2 + selectedIndex2;
+    const PL = wmeSDK_STS.Map.getPermalink()
     /**Feature Type Name to send. TODO: check what happens when multiple selections...
      * @type {string} */
     let type = featureTypeName;
