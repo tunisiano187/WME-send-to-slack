@@ -622,6 +622,7 @@ function construct(iconAction) {
                 log("Editor Level checked, ask.")
                 reason = AskReason();
             }
+            details !== null ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
             if (reason !== null) {
                 if (reason) {
                     telegramReason = "*" + translationsInfo[1][0] + " :* " + reason; //"Reason"
