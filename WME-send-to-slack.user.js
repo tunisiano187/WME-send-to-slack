@@ -340,8 +340,6 @@ async function localization () {
      */
     async function requestTranslations (i18n) {
         const CONNECT_ONE = sheetsAPI.link + sheetsAPI.sheet + "/values/"
-        // only for testing
-        sheetsAPI.range = "B2:B46"
         const CONNECT_TWO = "!" + sheetsAPI.range + "?key=" + sheetsAPI.key
         var statusSheetsCallback = false
         //Trying to make Beta vs. Prod. Compatibility - HTTP | Since CSP Bug it's fixed shall not be used anymore
