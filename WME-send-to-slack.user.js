@@ -220,6 +220,8 @@ function init() {
                         log('Lock icons added');
                         $( "#WMESTSlock" ).remove();
                         $('.lock-edit-view').after('<div id="WMESTSlock">' + DOWNLOCK_ICON + '&nbsp;' + RE_LOCK_ICON + '</div>');
+                        $(".Lock").attr("title", translationsInfo[40][0]);
+                        $(".Downlock").attr("title", translationsInfo[41][0]);
                         Loadactions();
                     }
                     if (closureListDiv) {
@@ -232,6 +234,8 @@ function init() {
                         if(wmeSDK_STS.DataModel.RoadClosures.getAll().length == 0) {
                             $('.closures-list').height("auto");
                         }
+                        $(".Closure").attr("title", translationsInfo[42][0]);
+                        $(".Open").attr("title", translationsInfo[43][0]);
                         Loadactions();
                     }
                     /* // not necessary because there is no validation icon in edit panel
@@ -1330,7 +1334,7 @@ function appendValidationIcon() {
         const newDiv = document.createElement("div");
         newDiv.id = "WMESTSvalidation";
         newDiv.style.margin = "auto 10px";
-        newDiv.innerHTML = VALIDATION_ICON;
+        newDiv.innerHTML = VALIDATION_ICON.replace('title="WMESTS"', 'title="' + translationsInfo[44][0] +'"');
         elem.appendChild(newDiv);
         Loadactions();
         log('Validation icon added');
