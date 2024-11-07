@@ -69,7 +69,7 @@ const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2024.10.20.01': 'Important changes, nothing visible. Thanks for using the script.\n*Native WME Script API Migration\n*Constants\n*Some deletions\n*Auto Lock Fixed\n*Advice Info added.',
     '2024.10.27.01 (Beta)': 'Implementing JSDOC and some Types Checks.. Documentation still pending but this will suffix minimal doc. Final Fix for AutoLock and some fixes noted by // @ts-check'
 });
-// Global Vars declaration only or some critical configs (must be easy to modify so it's set here instead of a let bar into a function)
+// Global Vars declaration only or some critical configs (must be easy to modify so it's set here instead of a let declaration into a function)
 /** Script name retrieved from `UserScript:name` tag. Actual Script Name @type {string}. Global const WMESTS @constant*/
 const SCRIPT_NAME = GM_info.script.name;
 /** Script version retrieved from `UserScript:version` tag. Actual version @type {string}. Global const WMESTS @constant*/
