@@ -4,7 +4,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.11.03.01 (Beta)
+// @version         2024.11.07.01 (Beta)
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // TODO: CHECK INCLUDE.... and EXCLUDES...
@@ -608,7 +608,7 @@ function construct(iconAction) {
                 log("Editor Level checked, ask.")
                 reason = AskReason();
             }
-            details !== null ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
+            (details !== null && !permalink.includes("wmeststo")) ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
             if (reason !== null) {
                 if (reason) {
                     telegramReason = "*" + translationsInfo[1][0] + " :* " + reason; //"Reason"
