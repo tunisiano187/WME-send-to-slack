@@ -787,9 +787,7 @@ ${closureTelegramDetails}${telegramDetails}`;
                     log(TextToSendDiscord);
                     break;
                 case "gform"://TODO: Also maybe lets rather than vars
-                    var projI=new OpenLayers.Projection("EPSG:900913");
-                    var projE=new OpenLayers.Projection("EPSG:4326");
-                    var currentlocation = (new OpenLayers.LonLat(wmeSDK_STS.Map.getMapCenter().lon,wmeSDK_STS.Map.getMapCenter().lat)).transform(projI,projE).toString().replace('lon=','').replace("lat=","");
+                    var currentlocation = (new OpenLayers.LonLat(wmeSDK_STS.Map.getMapCenter().lon,wmeSDK_STS.Map.getMapCenter().lat)).toString().replace('lon=','').replace("lat=","");
                     var GFormDBloc = gFormDB[localStorage.getItem('WMESTSServer')];
                     var datas = {};
                     datas[GFormDBloc.pl]=unescape(permalink);
@@ -1064,11 +1062,9 @@ function getPermalinkCleaned(iconaction) {
     let requiredRank = 0;
     let shouldBeLockedAt = -5;
 
-    const projI = new OpenLayers.Projection("EPSG:900913");
-    const projE = new OpenLayers.Projection("EPSG:4326");
     const center = wmeSDK_STS.Map.getMapCenter();
     const mapCenter = new OpenLayers.Geometry.Point(center.lon, center.lat);
-    const currentLocation = (new OpenLayers.LonLat(mapCenter.x, mapCenter.y)).transform(projI, projE).toString().replace(',', '&');
+    const currentLocation = (new OpenLayers.LonLat(mapCenter.x, mapCenter.y)).toString().replace(',', '&');
 
     if (iconaction !== "Validation") {
         $.each(W.selectionManager.getSelectedWMEFeatures(), function (indx, section) {
