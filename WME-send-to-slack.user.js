@@ -307,7 +307,7 @@ function makeHTTPRequest(type, url) {
 /**
  * Auto Lock Change.
  * Makes click into the requested level for `Lock/Unlock` purposes which will be the {@link wmeStsTo Requested Level}
- * @param {?number} times Times this function has been called. Shall not be used when calling this f(x).
+ * @param {number} [times=1] Times this function has been called. Shall not be used when calling this f(x).
  */
 function autoLockClick (times){
     times ??= 1 // Starting counter
