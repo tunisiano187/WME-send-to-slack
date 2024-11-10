@@ -191,6 +191,9 @@ function init() {
     localization().then(() =>{
         if(window.location.href.indexOf("segment") > -1 || window.location.href.indexOf("editSuggestions") > -1) {
             $('.lock-edit-view').after('<div id="WMESTSlock">' + DOWNLOCK_ICON + '&nbsp;' + RE_LOCK_ICON + '</div>');
+            $(".Lock").attr("title", translationsInfo[40][0]);
+            $(".Downlock").attr("title", translationsInfo[41][0]);
+            log('Lock icons added');
             if (getEditSuggestionPanel()) {
                 appendValidationIcon();
             }
