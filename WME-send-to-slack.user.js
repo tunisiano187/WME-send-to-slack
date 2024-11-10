@@ -327,6 +327,10 @@ function autoLockClick (times){
        wmeStsTo>=1 ? wmeLockLvl='#lockRank-' + levelTo : wmeLockLvl='.lock-level-selector > wz-checkable-chip:nth-child(1)';
        log("Click on " + wmeLockLvl);
        //document.querySelector("#segment-edit-general > form > div.lock-edit")
+       if (!$(wmeLockLvl).length) {
+        WazeWrap.Alerts.error(SCRIPT_NAME, "AutoLock Click Failed... - Check editing permisions.")
+        return;
+       }
        $(wmeLockLvl).trigger("click");
        WazeWrap.Alerts.info(SCRIPT_NAME, "🔐")
     }
