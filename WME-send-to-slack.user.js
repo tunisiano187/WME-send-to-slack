@@ -4,10 +4,9 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.11.07.01 (Beta)
+// @version         2024.11.09.01 (Beta)
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
-// TODO: CHECK INCLUDE.... and EXCLUDES...
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -305,12 +304,22 @@ function makeHTTPRequest(type, url) {
     });
 }
 
-/**Auto Lock Change. Makes click into the requested level for `Lock/Unlock` purposes which will be the {@link wmeStsTo Requested Level}*/
-function autoLockClick (){
-    if(document.getElementById('lockRank-0') === null) {
-       setTimeout(autoLockClick, 800);
-       log("Tab is still loading so we'll wait");
-       return;
+/**
+ * Auto Lock Change.
+ * Makes click into the requested level for `Lock/Unlock` purposes which will be the {@link wmeStsTo Requested Level}
+ * @param {?number} times Times this function has been called. Shall not be used when calling this f(x).
+ */
+function autoLockClick (times){
+    times ??= 1 // Starting counter
+    if(document.getElementById('lockRank-0') === null && times <= 10) {
+        if (times === 10 || document.querySelector('.lock-edit-view > wz-rich-tooltip:nth-child(2) > wz-tooltip:nth-child(1) > wz-tooltip-source:nth-child(1) > wz-tooltip-target:nth-child(1) > wz-checkable-chip:nth-child(1)').hasAttribute("disabled")) {
+            WazeWrap.Alerts.error(SCRIPT_NAME, "AutoLock Click Failed... - Check editing permisions or Unable to Load Tab.")
+            return;
+        }
+        times++
+        setTimeout(autoLockClick, 800, times);
+        log("Unable to get Lock Ranks or Tab is still loading so we'll wait");
+        return;
     }else {
        let levelTo = String(wmeStsTo-1);
        /**@type {string} JQuery selector for clicking the desired level.*/
@@ -321,6 +330,7 @@ function autoLockClick (){
        $(wmeLockLvl).trigger("click");
        WazeWrap.Alerts.info(SCRIPT_NAME, "🔐")
     }
+    return;
 }
 
 /**Gets the browser language and load translations into. Also sets `localstorage` for language advice (`WMESTSlangalert`).
