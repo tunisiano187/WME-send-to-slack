@@ -194,6 +194,14 @@ function init() {
             $(".Lock").attr("title", translationsInfo[40][0]);
             $(".Downlock").attr("title", translationsInfo[41][0]);
             log('Lock icons added');
+            $('.closures-list').before('<div id="WMESTSclosures">' + CLOSURE_ICON + '&nbsp;' + OPEN_ICON + '</div>');
+            $('.closures-list').height("auto");
+            if(wmeSDK_STS.DataModel.RoadClosures.getAll().length == 0) {
+                $('.closures-list').height("auto");
+            }
+            $(".Closure").attr("title", translationsInfo[42][0]);
+            $(".Open").attr("title", translationsInfo[43][0]);
+            log('Closure icons added');
             if (getEditSuggestionPanel()) {
                 appendValidationIcon();
             }
