@@ -4,10 +4,9 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.11.03.01 (Beta)
+// @version         2024.11.09.01 (Beta)
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
-// TODO CHECK INCLUDE.... and EXCLUDES...
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
@@ -17,8 +16,8 @@
 // @compatible      firefox
 // @compatible      opera
 // @compatible      brave
-// @connect         googleapis.com
-// @connect         discord.com
+// connect (NOT IN USE)         googleapis.com
+// connect (NOT IN USE)         discord.com
 // @require         https://greasyfork.org/scripts/24851-wazewrap/code/WazeWrap.js
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
@@ -30,7 +29,7 @@
 // Updates informations
 const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2021.01.07.01': 'Solve closure tab problem',
-    '2021.01.20.01': 'Telegram for Columbia',
+    '2021.01.20.01': 'Telegram for Colombia',
     '2021.02.19.01': 'Quick fix for lastest WME version',
     '2021.03.16.01': 'Add italian language, thanks to bedo2991',
     '2021.05.25.01': 'bug #71 translationsInfo[19] is undefined fixed by yvesdm',
@@ -69,7 +68,7 @@ const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2024.10.20.01': 'Important changes, nothing visible. Thanks for using the script.\n*Native WME Script API Migration\n*Constants\n*Some deletions\n*Auto Lock Fixed\n*Advice Info added.',
     '2024.10.27.01 (Beta)': 'Implementing JSDOC and some Types Checks.. Documentation still pending but this will suffix minimal doc. Final Fix for AutoLock and some fixes noted by // @ts-check'
 });
-// Global Vars declaration only or some critical configs (must be easy to modify so it's set here instead of a let bar into a function)
+// Global Vars declaration only or some critical configs (must be easy to modify so it's set here instead of a let declaration into a function)
 /** Script name retrieved from `UserScript:name` tag. Actual Script Name @type {string}. Global const WMESTS @constant*/
 const SCRIPT_NAME = GM_info.script.name;
 /** Script version retrieved from `UserScript:version` tag. Actual version @type {string}. Global const WMESTS @constant*/
@@ -260,8 +259,10 @@ function init() {
             nodeList.forEach(addedNode => {
                 // Only fire up if it's a node
                 if (addedNode.nodeType === Node.ELEMENT_NODE) {
-                    const panel = /**@type {Element} */(addedNode).querySelector('img[alt="suggester-level-icon"]');
-                    if (panel) {
+                    //Searching Elements...
+                    const PANEL_WITH_EDITOR_SUGGESTION = /**@type {Element} */(addedNode).querySelector('img[alt="suggester-level-icon"]');
+                    const PANEL_WITH_UR = /**@type {Element} */(addedNode).querySelector(".mapUpdateRequest")
+                    if (PANEL_WITH_EDITOR_SUGGESTION) {
                         sent=0;
                         appendValidationIcon();
                     }
@@ -303,12 +304,22 @@ function makeHTTPRequest(type, url) {
     });
 }
 
-/**Auto Lock Change. Makes click into the requested level for `Lock/Unlock` purposes which will be the {@link wmeStsTo Requested Level}*/
-function autoLockClick (){
-    if(document.getElementById('lockRank-0') === null) {
-       setTimeout(autoLockClick, 800);
-       log("Tab is still loading so we'll wait");
-       return;
+/**
+ * Auto Lock Change.
+ * Makes click into the requested level for `Lock/Unlock` purposes which will be the {@link wmeStsTo Requested Level}
+ * @param {?number} times Times this function has been called. Shall not be used when calling this f(x).
+ */
+function autoLockClick (times){
+    times ??= 1 // Starting counter
+    if(document.getElementById('lockRank-0') === null && times <= 10) {
+        if (times === 10 || document.querySelector('.lock-edit-view > wz-rich-tooltip:nth-child(2) > wz-tooltip:nth-child(1) > wz-tooltip-source:nth-child(1) > wz-tooltip-target:nth-child(1) > wz-checkable-chip:nth-child(1)').hasAttribute("disabled")) {
+            WazeWrap.Alerts.error(SCRIPT_NAME, "AutoLock Click Failed... - Check editing permisions or Unable to Load Tab.")
+            return;
+        }
+        times++
+        setTimeout(autoLockClick, 800, times);
+        log("Unable to get Lock Ranks or Tab is still loading so we'll wait");
+        return;
     }else {
        let levelTo = String(wmeStsTo-1);
        /**@type {string} JQuery selector for clicking the desired level.*/
@@ -316,9 +327,14 @@ function autoLockClick (){
        wmeStsTo>=1 ? wmeLockLvl='#lockRank-' + levelTo : wmeLockLvl='.lock-level-selector > wz-checkable-chip:nth-child(1)';
        log("Click on " + wmeLockLvl);
        //document.querySelector("#segment-edit-general > form > div.lock-edit")
+       if (!$(wmeLockLvl).length) {
+        WazeWrap.Alerts.error(SCRIPT_NAME, "AutoLock Click Failed... - Check editing permisions.")
+        return;
+       }
        $(wmeLockLvl).trigger("click");
        WazeWrap.Alerts.info(SCRIPT_NAME, "🔐")
     }
+    return;
 }
 
 /**Gets the browser language and load translations into. Also sets `localstorage` for language advice (`WMESTSlangalert`).
@@ -342,41 +358,21 @@ async function localization () {
         const CONNECT_ONE = sheetsAPI.link + sheetsAPI.sheet + "/values/"
         const CONNECT_TWO = "!" + sheetsAPI.range + "?key=" + sheetsAPI.key
         var statusSheetsCallback = false
-        //Trying to make Beta vs. Prod. Compatibility - HTTP | Since CSP Bug it's fixed shall not be used anymore
-        if (false){//USELESS CODE TODO: DELETE
-            await makeHTTPRequest('GET', CONNECT_ONE + sheetName + CONNECT_TWO)
-              .then( function(response) {
-                  $.each( response.values, function( key, val ) {
-                      if (!(Array.isArray(val) && val.length)) {
-                          translationsInfo.push(["Not Translated"])
-                      } else {
-                          translationsInfo.push(val)
-                      }
-                  });
-                  statusSheetsCallback = true;
-                  log("Tampermonkey HTTP succeeded");
-              } )
-              .catch(function(response){
-                  log( "Tampermonkey HTTP failed!" );
-                  console.log(response)
-              });
-        }else{
-            await $.get(CONNECT_ONE + i18n + CONNECT_TWO)//TODO: Use Fetch...
-              .then( function(data) {
-                  $.each( data.values, function( key, val ) {
-                      if (!(Array.isArray(val) && val.length)) {
-                          translationsInfo.push(["Not Translated"])
-                      } else {
-                          translationsInfo.push(val)
-                      }
-                  });
-                  statusSheetsCallback = true;
-                  log("$.get succeeded");
-              } )
-              .catch( () =>{
-                  log( "$.get failed!" );
-              } );
-        }
+        await $.get(CONNECT_ONE + i18n + CONNECT_TWO)//TODO: Use Fetch...
+            .then( function(data) {
+                $.each( data.values, function( key, val ) {
+                    if (!(Array.isArray(val) && val.length)) {
+                        translationsInfo.push(["Not Translated"])
+                    } else {
+                        translationsInfo.push(val)
+                    }
+                });
+                statusSheetsCallback = true;
+                log("$.get succeeded");
+            } )
+            .catch( () =>{
+                log( "$.get failed!" );
+            } );
         if (statusSheetsCallback) {
             log('Connected to Google Sheets API')
         }else if (!statusSheetsCallback){
@@ -626,7 +622,7 @@ function construct(iconAction) {
                 log("Editor Level checked, ask.")
                 reason = AskReason();
             }
-            details !== null ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
+            (details !== null && !permalink.includes("wmeststo")) ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
             if (reason !== null) {
                 if (reason) {
                     telegramReason = "*" + translationsInfo[1][0] + " :* " + reason; //"Reason"
@@ -1471,7 +1467,8 @@ function getLocationBySegmentID(segmentID) {
 }
 log("Load")
 // Script starts here... Inits SDK and Checks for WME Readiness (happens only once when the wme-initialized, wme-logged-in, and wme-map-data-loaded had been dispatched).
-window.SDK_INITIALIZED
+try{
+    window.SDK_INITIALIZED
     .then(()=>{
         wmeSDK_STS = window.getWmeSdk(WMESTS_SDKPARAMS);
         log(`Using ${wmeSDK_STS.getSDKVersion()} WME SDK VERSION`)
@@ -1487,3 +1484,8 @@ window.SDK_INITIALIZED
         alert(`${SCRIPT_NAME}: FATAL ERROR`)
         throw new Error(`${SCRIPT_NAME}: FATAL ERROR`)
     });
+}catch{
+    log("ULTRA FATAL ERROR ... UNDEFINED WME SDK ....")
+    alert(`${SCRIPT_NAME}: ULTRA FATAL ERROR`)
+    throw new Error(`${SCRIPT_NAME}: ULTRA FATAL ERROR - WINDOW SDK_INITIALIZED IT'S NOT DEFINED.`)
+}
