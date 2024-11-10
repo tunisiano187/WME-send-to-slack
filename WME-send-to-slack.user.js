@@ -190,18 +190,8 @@ function init() {
     //Loading translations
     localization().then(() =>{
         if(window.location.href.indexOf("segment") > -1 || window.location.href.indexOf("editSuggestions") > -1) {
-            $('.lock-edit-view').after('<div id="WMESTSlock">' + DOWNLOCK_ICON + '&nbsp;' + RE_LOCK_ICON + '</div>');
-            $(".Lock").attr("title", translationsInfo[40][0]);
-            $(".Downlock").attr("title", translationsInfo[41][0]);
-            log('Lock icons added');
-            $('.closures-list').before('<div id="WMESTSclosures">' + CLOSURE_ICON + '&nbsp;' + OPEN_ICON + '</div>');
-            $('.closures-list').height("auto");
-            if(wmeSDK_STS.DataModel.RoadClosures.getAll().length == 0) {
-                $('.closures-list').height("auto");
-            }
-            $(".Closure").attr("title", translationsInfo[42][0]);
-            $(".Open").attr("title", translationsInfo[43][0]);
-            log('Closure icons added');
+            addLockIcons();
+            addClosureIcons();
             if (getEditSuggestionPanel()) {
                 appendValidationIcon();
             }
@@ -227,25 +217,12 @@ function init() {
 
                     if (lockLevelDiv) {
                         sent=0;
-                        log('Lock icons added');
-                        $( "#WMESTSlock" ).remove();
-                        $('.lock-edit-view').after('<div id="WMESTSlock">' + DOWNLOCK_ICON + '&nbsp;' + RE_LOCK_ICON + '</div>');
-                        $(".Lock").attr("title", translationsInfo[40][0]);
-                        $(".Downlock").attr("title", translationsInfo[41][0]);
+                        addLockIcons();
                         Loadactions();
                     }
                     if (closureListDiv) {
                         sent=0;
-                        log('Closure icons added');
-                        $( "#WMESTSclosures" ).remove();
-                        //Conditional no longer required...
-                        $('.closures-list').before('<div id="WMESTSclosures">' + CLOSURE_ICON + '&nbsp;' + OPEN_ICON + '</div>');
-                        $('.closures-list').height("auto");
-                        if(wmeSDK_STS.DataModel.RoadClosures.getAll().length == 0) {
-                            $('.closures-list').height("auto");
-                        }
-                        $(".Closure").attr("title", translationsInfo[42][0]);
-                        $(".Open").attr("title", translationsInfo[43][0]);
+                        addClosureIcons();
                         Loadactions();
                     }
                     /* // not necessary because there is no validation icon in edit panel
@@ -1316,6 +1293,29 @@ function sendToDiscord(params, first, fallback) {
           }
       })
 };
+/**
+ * Create the {@link DOWNLOCK_ICON} and {@link RE_LOCK_ICON} into the log-edit-view.
+  */
+function addLockIcons() {
+    $('.lock-edit-view').after('<div id="WMESTSlock">' + DOWNLOCK_ICON + '&nbsp;' + RE_LOCK_ICON + '</div>');
+    $(".Lock").attr("title", translationsInfo[40][0]);
+    $(".Downlock").attr("title", translationsInfo[41][0]);
+    log('Lock icons added');
+}
+/**
+/**
+ * Create the {@link CLOSURE_ICON} and {@link OPEN_ICON} into the log-edit-view.
+  */
+function addClosureIcons() {
+    $('.closures-list').before('<div id="WMESTSclosures">' + CLOSURE_ICON + '&nbsp;' + OPEN_ICON + '</div>');
+    $('.closures-list').height("auto");
+    if(wmeSDK_STS.DataModel.RoadClosures.getAll().length == 0) {
+        $('.closures-list').height("auto");
+    }
+    $(".Closure").attr("title", translationsInfo[42][0]);
+    $(".Open").attr("title", translationsInfo[43][0]);
+    log('Closure icons added');
+}
 /**
  * Create the {@link VALIDATION_ICON} into the suggestion panel.
  * Till version `2024.10.20.01` being called from {@link init()}
