@@ -161,7 +161,7 @@ const EDITOR_ICONS = Object.freeze({
  * 4. Loads the settings tab
  * 5. Loads {@link localization()} Translations
  * 6. Requires for `registerSidebarTabResult` Interface and loads the Tab by calling {@link LoadTab()}
- * 7. Checks if it's a PL Open and calls {@link autoLockClick()} | {@link appendValidationIcon()} | {@link Loadactions()}
+ * 7. Checks if it's a PL Open and calls {@link autoLockClick()} | {@link addValidationIcon()} | {@link Loadactions()}
  * 8. Checks for Changes in the Edit Panel and in the panel section via a `MutationObserver` object
  * 9. Sets {@link sent} to `0`
  * 10. Checks version {@link versionCheck()}
@@ -193,7 +193,7 @@ function init() {
             addLockIcons();
             addClosureIcons();
             if (getEditSuggestionPanel()) {
-                appendValidationIcon();
+                addValidationIcon();
             }
             Loadactions();
         }
@@ -228,7 +228,7 @@ function init() {
                     /* // not necessary because there is no validation icon in edit panel
                     if (getEditSuggestionPanel()) { // gets the element of the suggestion panel if it's visible
                         sent=0;
-                        appendValidationIcon();
+                        addValidationIcon();
                     }
                     */
                 }
@@ -252,7 +252,7 @@ function init() {
                     const PANEL_WITH_UR = /**@type {Element} */(addedNode).querySelector(".mapUpdateRequest")
                     if (PANEL_WITH_EDITOR_SUGGESTION) {
                         sent=0;
-                        appendValidationIcon();
+                        addValidationIcon();
                     }
                 }
             });
@@ -1318,13 +1318,15 @@ function addClosureIcons() {
 }
 /**
  * Create the {@link VALIDATION_ICON} into the suggestion panel.
- * Till version `2024.10.20.01` being called from {@link init()}
+ * 
+ * Till version `2024.10.20.01` being called from {@link init()}. 
+ * Till version '2024.11.09.01 (Beta)' function named as appendValidationIcon.
  */
-function appendValidationIcon() {
+function addValidationIcon() {
     let panel = getEditSuggestionPanel();
     if (panel === null) {
-        setTimeout(appendValidationIcon, 100);
-        log("appendValidationIcon: the suggestion panel is still missing; retrying");
+        setTimeout(addValidationIcon, 100);
+        log("addValidationIcon: the suggestion panel is still missing; retrying");
         return;
     }
     let elem = panel.querySelector('[class^="headerActions"]');
