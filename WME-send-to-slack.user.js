@@ -4,7 +4,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.11.09.01 (Beta)
+// @version         2024.11.10.01 (Beta)
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
@@ -295,7 +295,7 @@ function makeHTTPRequest(type, url) {
 /**
  * Auto Lock Change.
  * Makes click into the requested level for `Lock/Unlock` purposes which will be the {@link wmeStsTo Requested Level}
- * @param {?number} [times] Times this function has been called. Shall not be used when calling this f(x).
+ * @param {number} [times=1] Times this function has been called. Shall not be used when calling this f(x).
  */
 function autoLockClick (times){
     times ??= 1 // Starting counter
@@ -1294,18 +1294,18 @@ function sendToDiscord(params, first, fallback) {
       })
 };
 /**
- * Create the {@link DOWNLOCK_ICON} and {@link RE_LOCK_ICON} into the log-edit-view.
-  */
+* Create the {@link DOWNLOCK_ICON} and {@link RE_LOCK_ICON} into the `lock-edit-view` class.
+*/
 function addLockIcons() {
     $('.lock-edit-view').after('<div id="WMESTSlock">' + DOWNLOCK_ICON + '&nbsp;' + RE_LOCK_ICON + '</div>');
     $(".Lock").attr("title", translationsInfo[40][0]);
     $(".Downlock").attr("title", translationsInfo[41][0]);
     log('Lock icons added');
+    return;
 }
 /**
-/**
- * Create the {@link CLOSURE_ICON} and {@link OPEN_ICON} into the log-edit-view.
-  */
+* Create the {@link CLOSURE_ICON} and {@link OPEN_ICON} into the `closures-list` class.
+*/
 function addClosureIcons() {
     $('.closures-list').before('<div id="WMESTSclosures">' + CLOSURE_ICON + '&nbsp;' + OPEN_ICON + '</div>');
     $('.closures-list').height("auto");
@@ -1315,10 +1315,10 @@ function addClosureIcons() {
     $(".Closure").attr("title", translationsInfo[42][0]);
     $(".Open").attr("title", translationsInfo[43][0]);
     log('Closure icons added');
+    return;
 }
 /**
- * Create the {@link VALIDATION_ICON} into the suggestion panel.
- * 
+ * Create the {@link VALIDATION_ICON} into the suggestion panel.  
  * Till version `2024.10.20.01` being called from {@link init()}. 
  * Till version '2024.11.09.01 (Beta)' function named as appendValidationIcon.
  */
