@@ -4,7 +4,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.11.10.01 (Beta)
+// @version         2024.11.10.02 (Beta)
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
@@ -594,7 +594,7 @@ function construct(iconAction) {
             telegramDetails = "*" + translationsInfo[4][0] + " :* " + details; //"Informations"
             details = "\r\n" + translationsInfo[4][0] + " : " + details + "\r\n"; //"Informations"
         }
-        if (iconAction !== "Lock" || details !== 'Cancelled') {//UNLOCK
+        if (iconAction !== "Lock" || details !== 'Cancelled') {//UNLOCK OR VALIDATION
             //Alert the editor if he can edit himself
             const lvlEditor = wmeSDK_STS.State.getUserInfo()?.rank+1;
             if (lvlEditor >= requiredLevel && iconAction !== 'Validation') {
@@ -610,7 +610,7 @@ function construct(iconAction) {
                 log("Editor Level checked, ask.")
                 reason = AskReason();
             }
-            (details !== null && !permalink.includes("wmeststo")) ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
+            (details !== null && !permalink.includes("wmeststo") && iconAction !== "Validation") ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
             if (reason !== null) {
                 if (reason) {
                     telegramReason = "*" + translationsInfo[1][0] + " :* " + reason; //"Reason"
