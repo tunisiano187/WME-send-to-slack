@@ -666,7 +666,7 @@ function construct(iconAction) {
             telegramDetails = telegramDetails + "\n" + telegramReason;
         }
         channel = "closures";
-    }else if (["BadUR", "SolvedUR"].includes(iconAction)) {
+    } else if (["BadUR", "SolvedUR"].includes(iconAction)) {
         reason = AskReason() ?? 'Cancelled'
         permalink = wmeSDK_STS.Map.getPermalink() // Override Permalink from getPermalinkCleaned.
         details = `\n${translationsInfo[1][0]}: ${reason}`
