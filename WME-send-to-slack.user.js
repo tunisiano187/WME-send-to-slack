@@ -1405,7 +1405,7 @@ function addUpdateRequestIcons() {
     </wz-tooltip>
 </wz-basic-tooltip>
 </div>`
-    let UR = document.querySelector('.additional-attributes')
+    let UR = document.querySelector('.mapUpdateRequest .additional-attributes')
     UR.insertAdjacentHTML("afterend",iconsDIV)
     log("UR ICONS ADDED...")
     return;
