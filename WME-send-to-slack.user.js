@@ -4,7 +4,7 @@
 // @namespace       https://wmests.bowlman.be
 // @description     Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.
 // @description:fr  Ce script vous permettant d'envoyer vos demandes de délock/fermeture et de validation directement sur slack
-// @version         2024.11.12.01
+// @version         2024.11.23.01
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
@@ -66,7 +66,7 @@ const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2024.03.05.01': 'New: Ask for reason on open action. Fix: Validation icon has been missing again',
     '2024.06.01.01': 'Fixed script after last WME update, moved validation icon into edit suggestions',
     '2024.10.20.01': 'Important changes, nothing visible. Thanks for using the script. *Native WME Script API Migration *Constants *Some deletions *Auto Lock Fixed *Advice Info added.',
-    '2024.11.12.01': '<br />*JSDoc Implemented.<br />*Fixes some error noticed by //@ts-check<br />*Fixing missing validation icon on startup with suggestion panel open<br />*WME SDK Added🥳🎉🎈<br />*Fixes to satisfy checks<br />*Final Fix for AutoLock<br />*Add some icon titles with translations<br />*Some Error messages were added.<br />*AutoLock enchacements..<br />*Adding Update Requests(UR) icons and actions🎈🥳'
+    '2024.11.23.01': '<br />*JSDoc Implemented.<br />*Fixes some error noticed by //@ts-check<br />*Fixing missing validation icon on startup with suggestion panel open<br />*WME SDK Added🥳🎉🎈<br />*Fixes to satisfy checks<br />*Final Fix for AutoLock<br />*Add some icon titles with translations<br />*Some Error messages were added.<br />*AutoLock enchacements..<br />*Adding Update Requests(UR) icons and actions🎈🥳'
 });
 // Global Vars declaration only or some critical configs (must be easy to modify so it's set here instead of a let declaration into a function)
 /** Script name retrieved from `UserScript:name` tag. Actual Script Name @type {string}. Global const WMESTS @constant*/
