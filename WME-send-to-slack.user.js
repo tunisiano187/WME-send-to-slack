@@ -618,11 +618,11 @@ function construct(iconAction) {
                     log("Kill Switch Activated")
                 } else {
                     log("Editor Level check triggered, user decided to continue anyway.")
-                    reason = AskReason() ?? 'Cancelled';
+                    reason = AskReason();
                 }
             } else {// ask always for reason to get a chance to abort
                 log("Editor Level checked, ask.")
-                reason = AskReason() ?? 'Cancelled';
+                reason = AskReason();
             }
             (details !== null && !permalink.includes("wmeststo") && iconAction !== "Validation") ? permalink = permalink + "&wmeststo="+String(wmeSDK_STS.State.getUserInfo()?.rank+1):undefined;
             if (reason !== null) {
@@ -649,7 +649,7 @@ function construct(iconAction) {
         if (iconAction === "Closure") {
             reason = prompt(translationsInfo[6][0], translationsInfo[36][0] + " " + date.toLocaleDateString("fr-FR") + " A<->B");//Check Drive sheet
         } else {
-            reason = AskReason() ?? 'Cancelled';
+            reason = AskReason();
         }
         telegramReason = reason;
         if (reason == null) {
