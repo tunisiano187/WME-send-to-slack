@@ -1375,40 +1375,18 @@ function addValidationIcon() {
  * Till version `2024.10.20.01` being called from {@link init()}.
  */
 function addUpdateRequestIcons() {
-    let iconsDIV = `<div>
-<wz-basic-tooltip class="sc-wz-basic-tooltip-h sc-wz-basic-tooltip-s">
-    <!---->
-        <wz-tooltip class="sc-wz-basic-tooltip sc-wz-basic-tooltip-s">
-        <!----><!---->
-            <wz-tooltip class="sc-wz-basic-tooltip sc-wz-basic-tooltip-s">
-                <wz-tooltip-source class="sc-wz-tooltip-source-h sc-wz-tooltip-source-s">
-                <!----><!----><!---->
-                    <wz-button size="sm" color="clear-icon" class="focus">
-                        ${UR_NOT_IDENTIFIED_ICON}
-                    </wz-button>
-                </wz-tooltip-source>
-            </wz-tooltip>
-        </wz-tooltip>
-</wz-basic-tooltip>
-  <wz-basic-tooltip class="sc-wz-basic-tooltip-h sc-wz-basic-tooltip-s">
-  <!---->
-    <wz-tooltip class="sc-wz-basic-tooltip sc-wz-basic-tooltip-s">
-    <!----><!---->
-        <wz-tooltip class="sc-wz-basic-tooltip sc-wz-basic-tooltip-s">
-            <wz-tooltip-source class="sc-wz-tooltip-source-h sc-wz-tooltip-source-s">
-            <!----><!----><!---->
-                <wz-button size="sm" color="clear-icon" class="focus">
-                    ${UR_SOLVED_ICON}
-                </wz-button>
-            </wz-tooltip-source>
-        </wz-tooltip>
-    </wz-tooltip>
-</wz-basic-tooltip>
-</div>`
-    let UR = document.querySelector('.mapUpdateRequest .additional-attributes')
-    UR.insertAdjacentHTML("afterend",iconsDIV)
-    log("UR ICONS ADDED...")
-    return;
+    let iconsDIV = `
+    <div>
+        <wz-button size="sm" color="clear-icon" class="focus">
+            ${UR_NOT_IDENTIFIED_ICON}
+        </wz-button>
+        <wz-button size="sm" color="clear-icon" class="focus">
+            ${UR_SOLVED_ICON}
+        </wz-button>
+    </div>`;
+    let UR = document.querySelector('.mapUpdateRequest .additional-attributes');
+    UR.insertAdjacentHTML("afterend", iconsDIV);
+    log("UR icons added");
 }
 
 /**
