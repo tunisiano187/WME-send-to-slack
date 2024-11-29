@@ -253,7 +253,7 @@ function init() {
                 if (addedNode.nodeType === Node.ELEMENT_NODE) {
                     //Searching Elements...
                     const PANEL_WITH_EDITOR_SUGGESTION = /**@type {Element} */(addedNode).querySelector('img[alt="suggester-level-icon"]');
-                    const PANEL_WITH_UR = /**@type {boolean} */((addedNode).className.includes('panel') && ((addedNode).querySelector('[class~="mapUpdateRequest"]') !== null));
+                    const PANEL_WITH_UR = /**@type {Element} */(addedNode).className.includes('panel') && (/**@type {Element} */(addedNode).querySelector('[class~="mapUpdateRequest"]') !== null);
                     if (PANEL_WITH_EDITOR_SUGGESTION) {
                         sent=0;
                         addValidationIcon();
