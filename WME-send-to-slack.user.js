@@ -7,7 +7,7 @@
 // @version         2024.11.27.01.dev
 // @downloadURL     https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
 // @updateURL       https://update.greasyfork.org/scripts/408365/WME%20Send%20to%20Slack.user.js
-// @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor.*$/
+// @include 	    /^https:\/\/(www|beta)\.waze\.com\/(?!user\/)(.{2,6}\/)?editor\?.*$/
 // @exclude         https://www.waze.com/user/*editor/*
 // @exclude         https://www.waze.com/*/user/*editor/*
 // @author          Tunisiano18
