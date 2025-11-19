@@ -1420,7 +1420,7 @@ function iconActionHandler(e) {
  * @returns {?Element}
  */
 function getEditSuggestionPanel() {
-    const panel = document.querySelector('[id="panel-container"] > [class="panel show"] > [class^="panel"]');
+    const panel = document.querySelector('[id="panel-container"] > [class^="panel"]');
     const img = panel?.querySelector('[class^="suggestionCallToActions"]');
     if (img) {
         return panel;
