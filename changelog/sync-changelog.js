@@ -50,7 +50,7 @@ function extractVersionsFromJS() {
     
     // Regex pour extraire chaque entrée version: 'description'
     // Format: '2024.11.27.01': 'Fixed missing update request icons...'
-    const versionRegex = new RegExp(String.raw`'([^']+)':\s*'([^']*(?:\\[\s\S][^']*)*)'(?=\s*[,}])`, 'g');
+    const versionRegex = /'([^']+)':\s*'([^']*(?:\\[\s\S][^']*)*)'(?=\s*[,}])/g;
     
     const versions = {};
     let versionMatch;
@@ -91,7 +91,7 @@ function parseExistingChangelog() {
     
     // Regex pour extraire les entrées du changelog
     // Format : ## [Version] - Description
-    const versionRegex = new RegExp(String.raw`^##\s+\[([^\]]+)\]\s*-\s*(.*)$`, 'gm');
+    const versionRegex = /^##\s+\[([^\]]+)\]\s*-\s*(.*)$/gm;
     
     const versions = {};
     let match;
@@ -132,8 +132,7 @@ Toutes les versions et modifications du script WME Send to Slack.
     const description = versions[version];
     
     // Formater la date de la version (YYYY.MM.DD.XX -> YYYY-MM-DD)
-    const dateRegex = new RegExp(String.raw`^(\d{4})\.(\d{2})\.(\d{2})`);
-    const dateMatch = dateRegex.exec(version);
+    const dateMatch = /^(\d{4})\.(\d{2})\.(\d{2})/.exec(version);
     let dateStr = version;
     if (dateMatch) {
       dateStr = `${dateMatch[1]}-${dateMatch[2]}-${dateMatch[3]}`;
