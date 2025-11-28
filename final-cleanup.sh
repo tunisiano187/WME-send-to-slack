@@ -9,12 +9,12 @@ echo "=================================================="
 cd /workspaces/WME-send-to-slack
 
 # Remove files using git to properly track deletion
-if [ -f "changelog/README.md" ]; then
+if [[ -f "changelog/README.md" ]]; then
   git rm changelog/README.md
   echo "✓ Deleted: changelog/README.md"
 fi
 
-if [ -f "changelog/GITHUB-ACTIONS.md" ]; then
+if [[ -f "changelog/GITHUB-ACTIONS.md" ]]; then
   git rm changelog/GITHUB-ACTIONS.md
   echo "✓ Deleted: changelog/GITHUB-ACTIONS.md"
 fi
