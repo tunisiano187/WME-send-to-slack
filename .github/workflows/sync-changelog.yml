@@ -1,0 +1,69 @@
+﻿name: Synchroniser le Changelog
+
+on:
+  push:
+    paths:
+      - 'WME-send-to-slack.user.js'
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  sync-changelog:
+    runs-on: ubuntu-latest
+    name: Synchronise le changelog automatiquement
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 🔧 Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 🚀 Exécuter la synchronisation
+        run: node changelog/sync-changelog.js
+
+      - name: 📝 Vérifier si changelog.md a changé
+        id: changelog_check
+        run: |
+          if git diff --quiet changelog.md; then
+            echo "changed=false" >> $GITHUB_OUTPUT
+            echo "✓ Pas de changement dans le changelog"
+          else
+            echo "changed=true" >> $GITHUB_OUTPUT
+            echo "✓ Changelog modifié - commit requis"
+            echo ""
+            echo "Changements détectés:"
+            git diff --stat changelog.md
+          fi
+
+      - name: 💾 Committer et pusher les changements
+        if: steps.changelog_check.outputs.changed == 'true'
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Récupérer la version depuis le fichier
+          VERSION=$(grep "@version" WME-send-to-slack.user.js | head -1 | sed "s/.*@version\s*//")
+          
+          echo "📝 Committing changes for version: $VERSION"
+          
+          git add changelog.md
+          git commit -m "chore: sync changelog for version $VERSION [skip ci]"
+          git push
+
+      - name: ✅ Succès
+        if: steps.changelog_check.outputs.changed == 'false'
+        run: echo "✓ Changelog déjà à jour"
+
+      - name: 🔍 Afficher le changelog
+        run: |
+          echo "📊 Changelog généré:"
+          echo "===================="
+          head -30 changelog.md
+          echo ""
+          echo "... (voir changelog.md pour plus)"

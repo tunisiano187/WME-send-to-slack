@@ -1,0 +1,22 @@
+﻿{
+  "name": "wme-send-to-slack",
+  "version": "2024.11.27.01",
+  "description": "Script to send Unlock/Closures/Validations requests to almost every Waze communities platform channels.",
+  "main": "WME-send-to-slack.user.js",
+  "scripts": {
+    "sync-changelog": "node changelog/sync-changelog.js",
+    "precommit": "node changelog/sync-changelog.js"
+  },
+  "keywords": [
+    "waze",
+    "script",
+    "slack",
+    "userscript"
+  ],
+  "author": "Tunisiano18",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/tunisiano187/WME-send-to-slack"
+  }
+}

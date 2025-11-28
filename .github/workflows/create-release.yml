@@ -1,0 +1,124 @@
+﻿name: Créer Release automatique
+
+on:
+  push:
+    tags:
+      - 'v*'
+    branches:
+      - master
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    name: Créer une release GitHub
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: 📋 Extraire les informations de version
+        id: version_info
+        run: |
+          # Extraire la version depuis le fichier
+          VERSION=$(grep "@version" WME-send-to-slack.user.js | head -1 | sed "s/.*@version\s*//")
+          
+          echo "version=$VERSION" >> $GITHUB_OUTPUT
+          echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
+          
+          echo "Version détectée: $VERSION"
+
+      - name: 📝 Extraire les notes de release du changelog
+        id: changelog_notes
+        run: |
+          # Extraire la première section du changelog (notes pour la dernière version)
+          # Prend le contenu entre deux ## [...]
+          
+          NOTES=$(awk '/^## \[/{if(NR>1)exit}NR>1' changelog.md | sed 's/^## \[//;s/\].*//')
+          
+          # Alternative si la première méthode ne fonctionne pas
+          if [ -z "$NOTES" ]; then
+            NOTES=$(sed -n '/^## \[/,/^## \[/p' changelog.md | head -20)
+          fi
+          
+          # Encoder les notes pour utilisation en variable GitHub
+          echo "notes<<EOF" >> $GITHUB_OUTPUT
+          echo "$NOTES" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+          
+          echo "✓ Notes de release extraites"
+
+      - name: 🏷️ Vérifier si le tag existe
+        id: tag_check
+        run: |
+          TAG="v${{ steps.version_info.outputs.version }}"
+          
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "exists=true" >> $GITHUB_OUTPUT
+            echo "✓ Le tag $TAG existe déjà"
+          else
+            echo "exists=false" >> $GITHUB_OUTPUT
+            echo "✓ Le tag $TAG n'existe pas - création requise"
+          fi
+
+      - name: 🏷️ Créer le tag
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          TAG="v${{ steps.version_info.outputs.version }}"
+          COMMIT_MSG="Release ${{ steps.version_info.outputs.version }}"
+          
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          echo "🏷️ Création du tag: $TAG"
+          git tag -a "$TAG" -m "$COMMIT_MSG"
+          git push origin "$TAG"
+
+      - name: 📦 Créer la release GitHub
+        if: steps.tag_check.outputs.exists == 'false'
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: v${{ steps.version_info.outputs.version }}
+          release_name: Release ${{ steps.version_info.outputs.version }}
+          body: |
+            # 🎉 WME Send to Slack v${{ steps.version_info.outputs.version }}
+
+            ## 📝 Changelog
+
+            ${{ steps.changelog_notes.outputs.notes }}
+
+            ---
+
+            **Téléchargement directe:**
+            - [WME-send-to-slack.user.js](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version_info.outputs.version }}/WME-send-to-slack.user.js)
+
+            **Installation:**
+            1. Installez [Tampermonkey](https://www.tampermonkey.net/) ou [Greasemonkey](https://www.greasespot.net/)
+            2. Cliquez sur le lien d'installation ci-dessus
+
+            **Mise à jour automatique:**
+            Le script se mettra à jour automatiquement via Greasyfork.
+
+            ---
+
+            **Plus d'infos:** [GitHub Repository](https://github.com/${{ github.repository }})
+          draft: false
+          prerelease: false
+
+      - name: ✅ Release créée avec succès
+        if: steps.tag_check.outputs.exists == 'false'
+        run: |
+          echo "✓ Release v${{ steps.version_info.outputs.version }} créée"
+          echo "🔗 Lien: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version_info.outputs.version }}"
+
+      - name: ℹ️ Release existe déjà
+        if: steps.tag_check.outputs.exists == 'true'
+        run: |
+          echo "ℹ️ La release v${{ steps.version_info.outputs.version }} existe déjà"
