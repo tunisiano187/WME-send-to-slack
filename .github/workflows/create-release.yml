@@ -1,4 +1,4 @@
-﻿name: Créer Release automatique
+﻿name: Create Automatic Release
 
 on:
   push:
@@ -14,59 +14,59 @@ permissions:
 jobs:
   release:
     runs-on: ubuntu-latest
-    name: Créer une release GitHub
+    name: Create GitHub Release
     
     steps:
-      - name: 📥 Checkout du code
+      - name: 📥 Checkout code
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: 📋 Extraire les informations de version
+      - name: 📋 Extract version information
         id: version_info
         run: |
-          # Extraire la version depuis le fichier
+          # Extract version from file
           VERSION=$(grep "@version" WME-send-to-slack.user.js | head -1 | sed "s/.*@version\s*//")
           
           echo "version=$VERSION" >> $GITHUB_OUTPUT
           echo "tag=v${VERSION}" >> $GITHUB_OUTPUT
           
-          echo "Version détectée: $VERSION"
+          echo "Detected version: $VERSION"
 
-      - name: 📝 Extraire les notes de release du changelog
+      - name: 📝 Extract release notes from changelog
         id: changelog_notes
         run: |
-          # Extraire la première section du changelog (notes pour la dernière version)
-          # Prend le contenu entre deux ## [...]
+          # Extract first section of changelog (notes for latest version)
+          # Takes content between two ## [...]
           
           NOTES=$(awk '/^## \[/{if(NR>1)exit}NR>1' changelog.md | sed 's/^## \[//;s/\].*//')
           
-          # Alternative si la première méthode ne fonctionne pas
+          # Alternative if first method doesn't work
           if [ -z "$NOTES" ]; then
             NOTES=$(sed -n '/^## \[/,/^## \[/p' changelog.md | head -20)
           fi
           
-          # Encoder les notes pour utilisation en variable GitHub
+          # Encode notes for GitHub variable usage
           echo "notes<<EOF" >> $GITHUB_OUTPUT
           echo "$NOTES" >> $GITHUB_OUTPUT
           echo "EOF" >> $GITHUB_OUTPUT
           
-          echo "✓ Notes de release extraites"
+          echo "✓ Release notes extracted"
 
-      - name: 🏷️ Vérifier si le tag existe
+      - name: 🏷️ Check if tag exists
         id: tag_check
         run: |
           TAG="v${{ steps.version_info.outputs.version }}"
           
           if git rev-parse "$TAG" >/dev/null 2>&1; then
             echo "exists=true" >> $GITHUB_OUTPUT
-            echo "✓ Le tag $TAG existe déjà"
+            echo "✓ Tag $TAG already exists"
           else
             echo "exists=false" >> $GITHUB_OUTPUT
-            echo "✓ Le tag $TAG n'existe pas - création requise"
+            echo "✓ Tag $TAG does not exist - creation required"
           fi
 
-      - name: 🏷️ Créer le tag
+      - name: 🏷️ Create tag
         if: steps.tag_check.outputs.exists == 'false'
         run: |
           TAG="v${{ steps.version_info.outputs.version }}"
@@ -75,11 +75,11 @@ jobs:
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git config --local user.name "github-actions[bot]"
           
-          echo "🏷️ Création du tag: $TAG"
+          echo "🏷️ Creating tag: $TAG"
           git tag -a "$TAG" -m "$COMMIT_MSG"
           git push origin "$TAG"
 
-      - name: 📦 Créer la release GitHub
+      - name: 📦 Create GitHub release
         if: steps.tag_check.outputs.exists == 'false'
         uses: actions/create-release@v1
         env:
@@ -96,29 +96,30 @@ jobs:
 
             ---
 
-            **Téléchargement directe:**
+            **Direct Download:**
             - [WME-send-to-slack.user.js](https://github.com/${{ github.repository }}/releases/download/v${{ steps.version_info.outputs.version }}/WME-send-to-slack.user.js)
 
             **Installation:**
-            1. Installez [Tampermonkey](https://www.tampermonkey.net/) ou [Greasemonkey](https://www.greasespot.net/)
-            2. Cliquez sur le lien d'installation ci-dessus
+            1. Install [Tampermonkey](https://www.tampermonkey.net/) or [Greasemonkey](https://www.greasespot.net/)
+            2. Click on the installation link above
+            3. Confirm installation in your userscript manager
 
-            **Mise à jour automatique:**
-            Le script se mettra à jour automatiquement via Greasyfork.
+            **Automatic Updates:**
+            The script will automatically update via Greasyfork.
 
             ---
 
-            **Plus d'infos:** [GitHub Repository](https://github.com/${{ github.repository }})
+            **More Info:** [GitHub Repository](https://github.com/${{ github.repository }})
           draft: false
           prerelease: false
 
-      - name: ✅ Release créée avec succès
+      - name: ✅ Release created successfully
         if: steps.tag_check.outputs.exists == 'false'
         run: |
-          echo "✓ Release v${{ steps.version_info.outputs.version }} créée"
-          echo "🔗 Lien: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version_info.outputs.version }}"
+          echo "✓ Release v${{ steps.version_info.outputs.version }} created"
+          echo "🔗 Link: https://github.com/${{ github.repository }}/releases/tag/v${{ steps.version_info.outputs.version }}"
 
-      - name: ℹ️ Release existe déjà
+      - name: ℹ️ Release already exists
         if: steps.tag_check.outputs.exists == 'true'
         run: |
-          echo "ℹ️ La release v${{ steps.version_info.outputs.version }} existe déjà"
+          echo "ℹ️ Release v${{ steps.version_info.outputs.version }} already exists"
