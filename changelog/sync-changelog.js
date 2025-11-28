@@ -1,6 +1,4 @@
-﻿#!/usr/bin/env node
-
-/**
+﻿/**
  * Sync Changelog Script
  * Cette script synchronise automatiquement le changelog.md avec les versions
  * provenant de la variable _WHATS_NEW_LIST dans le fichier WME-send-to-slack.user.js
@@ -50,7 +48,9 @@ function extractVersionsFromJS() {
     
     // Regex pour extraire chaque entrée version: 'description'
     // Format: '2024.11.27.01': 'Fixed missing update request icons...'
-    const versionRegex = /'([^']+)':\s*'([^']*(?:\\[\s\S][^']*)*)'(?=\s*[,}])/g;
+    // Use a safe pattern that matches either an escaped sequence (\\.) or any char
+    // that is not a single quote or backslash. This avoids catastrophic backtracking.
+    const versionRegex = /'([^']+)'\s*:\s*'((?:\\.|[^'\\])*)'(?=\s*[,}])/g;
     
     const versions = {};
     let versionMatch;

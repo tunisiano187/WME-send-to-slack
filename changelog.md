@@ -6,9 +6,13 @@ Toutes les versions et modifications du script WME Send to Slack.
 
 ---
 
+## [2202.02.22.01] - 2202-02-22
+
+Adding Yemen
+
 ## [2024.11.27.01] - 2024-11-27
 
-Fixed missing update request icons (breaking change in WME v2.261)
+2024-11-27
 
 ## [2024.11.23.01] - 2024-11-23
 
@@ -124,14 +128,6 @@ Germany completion
 
 Yemen solution
 
-## [2002.03.06.01] - 2002-03-06
-
-Correction test for Yemen and Germany discord first 2
-
-## [2202.02.22.01] - 2202-02-22
-
-Adding Yemen
-
 ## [2022.02.14.04] - 2022-02-14
 
 Update Pakistan server config
@@ -167,3 +163,8 @@ Telegram for Colombia
 ## [2021.01.07.01] - 2021-01-07
 
 Solve closure tab problem
+
+## [2002.03.06.01] - 2002-03-06
+
+Correction test for Yemen and Germany discord first 2
+
