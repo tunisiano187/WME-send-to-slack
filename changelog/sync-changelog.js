@@ -10,12 +10,23 @@
  * - Exécutions suivantes : ajoute les nouvelles versions détectées
  */
 
-const fs = require('fs');
-const path = require('path');
+const fs = require('node:fs');
+const path = require('node:path');
 
 // Chemin des fichiers (changelog.md reste à la racine)
 const jsFilePath = path.join(__dirname, '..', 'WME-send-to-slack.user.js');
 const changelogPath = path.join(__dirname, '..', 'changelog.md');
+
+/**
+ * Fonction de comparaison pour trier les versions alphabétiquement
+ * Utilise String.localeCompare pour un tri fiable et multi-locale
+ * @param {string} a - Première version
+ * @param {string} b - Deuxième version
+ * @returns {number} Résultat de la comparaison
+ */
+function compareVersions(a, b) {
+  return b.localeCompare(a, undefined, { numeric: true, sensitivity: 'variant' });
+}
 
 /**
  * Extrait les versions et descriptions de _WHATS_NEW_LIST
@@ -51,11 +62,11 @@ function extractVersionsFromJS() {
       
       // Decode escaped characters
       description = description
-        .replace(/\\n/g, '\n')
-        .replace(/\\r/g, '\r')
-        .replace(/\\\//g, '/')
-        .replace(/\\'/g, "'")
-        .replace(/\\\\/g, '\\');
+        .replaceAll('\\n', '\n')
+        .replaceAll('\\r', '\r')
+        .replaceAll('\\/', '/')
+        .replaceAll("\\'", "'")
+        .replaceAll('\\\\', '\\');
       
       versions[version] = description;
     }
@@ -116,8 +127,7 @@ Toutes les versions et modifications du script WME Send to Slack.
 
   // Ajouter les versions triées par date (plus récente en premier)
   const sortedVersions = Object.keys(versions)
-    .sort()
-    .reverse();
+    .sort(compareVersions);
   
   for (const version of sortedVersions) {
     const description = versions[version];

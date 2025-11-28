@@ -42,7 +42,7 @@ jobs:
           NOTES=$(awk '/^## \[/{if(NR>1)exit}NR>1' changelog.md | sed 's/^## \[//;s/\].*//')
           
           # Alternative if first method doesn't work
-          if [ -z "$NOTES" ]; then
+          if [[ -z "$NOTES" ]]; then
             NOTES=$(sed -n '/^## \[/,/^## \[/p' changelog.md | head -20)
           fi
           

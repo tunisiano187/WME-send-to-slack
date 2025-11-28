@@ -53,7 +53,7 @@ jobs:
 
       - name: ✓ Vérifier que changelog.md a été généré
         run: |
-          if [ -f "changelog.md" ]; then
+          if [[ -f "changelog.md" ]]; then
             echo "✓ changelog.md généré avec succès"
             echo ""
             echo "Nombre de versions: $(grep -c '^## \[' changelog.md)"
@@ -66,7 +66,7 @@ jobs:
         run: |
           COUNT=$(grep -c '^## \[' changelog.md || true)
           
-          if [ "$COUNT" -gt 0 ]; then
+          if [[ $COUNT -gt 0 ]]; then
             echo "✓ Nombre de versions: $COUNT"
           else
             echo "❌ Aucune version trouvée dans le changelog"
