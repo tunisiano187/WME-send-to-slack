@@ -70,7 +70,8 @@ const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2024.06.01.01': 'Fixed script after last WME update, moved validation icon into edit suggestions',
     '2024.10.20.01': 'Important changes, nothing visible. Thanks for using the script. *Native WME Script API Migration *Constants *Some deletions *Auto Lock Fixed *Advice Info added.',
     '2024.11.23.01': '<br />*JSDoc Implemented.<br />*Fixes some error noticed by //@ts-check<br />*Fixing missing validation icon on startup with suggestion panel open<br />*WME SDK Added🥳🎉🎈<br />*Fixes to satisfy checks<br />*Final Fix for AutoLock<br />*Add some icon titles with translations<br />*Some Error messages were added.<br />*AutoLock enchacements..<br />*Adding Update Requests(UR) icons and actions🎈🥳',
-    '2024.11.27.01': 'Fixed missing update request icons (breaking change in WME v2.261)'
+    '2024.11.27.01': 'Fixed missing update request icons (breaking change in WME v2.261)',
+    '2026.02.09.01': 'Restored compatibility with WME v2.336. Fixed missing alerts. Fixed missing update request icons. Added request icons for all issues'
 });
 // Global Vars declaration only or some critical configs (must be easy to modify so it's set here instead of a let declaration into a function)
 /** Script name retrieved from `UserScript:name` tag. Actual Script Name @type {string}. Global const WMESTS @constant*/
