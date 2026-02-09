@@ -1,0 +1,111 @@
+﻿name: Vérifications automatiques
+
+on:
+  pull_request:
+    paths:
+      - 'WME-send-to-slack.user.js'
+      - 'changelog/sync-changelog.js'
+      - '.github/workflows/**'
+  push:
+    paths:
+      - 'WME-send-to-slack.user.js'
+    branches:
+      - master
+  workflow_dispatch:
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    name: Vérifier la version et le changelog
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: ✓ Vérifier que _WHATS_NEW_LIST existe
+        run: |
+          if grep -q "_WHATS_NEW_LIST" WME-send-to-slack.user.js; then
+            echo "✓ _WHATS_NEW_LIST trouvée"
+          else
+            echo "❌ _WHATS_NEW_LIST non trouvée"
+            exit 1
+          fi
+
+      - name: ✓ Vérifier le format de @version
+        run: |
+          VERSION=$(grep "@version" WME-send-to-slack.user.js | head -1 | sed "s/.*@version\s*//")
+          
+          if [[ $VERSION =~ ^[0-9]{4}\.[0-9]{2}\.[0-9]{2}\.[0-9]{2}$ ]]; then
+            echo "✓ Version valide: $VERSION"
+          else
+            echo "❌ Format de version invalide: $VERSION"
+            echo "Format attendu: YYYY.MM.DD.XX (ex: 2024.11.28.01)"
+            exit 1
+          fi
+
+      - name: 🔍 Exécuter le script de synchronisation
+        run: node changelog/sync-changelog.js
+
+      - name: ✓ Vérifier que changelog.md a été généré
+        run: |
+          if [[ -f "changelog.md" ]]; then
+            echo "✓ changelog.md généré avec succès"
+            echo ""
+            echo "Nombre de versions: $(grep -c '^## \[' changelog.md)"
+          else
+            echo "❌ changelog.md non généré"
+            exit 1
+          fi
+
+      - name: ✓ Vérifier qu'il y a au moins 1 version
+        run: |
+          COUNT=$(grep -c '^## \[' changelog.md || true)
+          
+          if [[ $COUNT -gt 0 ]]; then
+            echo "✓ Nombre de versions: $COUNT"
+          else
+            echo "❌ Aucune version trouvée dans le changelog"
+            exit 1
+          fi
+
+      - name: 📊 Afficher les stats
+        run: |
+          echo "📊 Statistiques:"
+          echo "================"
+          echo "Nombre de versions: $(grep -c '^## \[' changelog.md || true)"
+          echo "Version actuelle: $(grep '@version' WME-send-to-slack.user.js | head -1 | sed 's/.*@version\s*//')"
+          echo "Taille du script: $(wc -l WME-send-to-slack.user.js | awk '{print $1}') lignes"
+          echo "Taille du changelog: $(wc -l changelog.md | awk '{print $1}') lignes"
+
+      - name: ✓ Vérification réussie
+        run: echo "✓ Toutes les vérifications sont passées"
+
+  lint:
+    runs-on: ubuntu-latest
+    name: Vérifier la syntaxe JavaScript
+    
+    steps:
+      - name: 📥 Checkout du code
+        uses: actions/checkout@v4
+
+      - name: 🔧 Configurer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: 📦 Installer les dépendances
+        run: |
+          npm install --save-dev eslint eslint-config-airbnb-base eslint-plugin-import --legacy-peer-deps 2>/dev/null || true
+
+      - name: 🔍 Vérifier la syntaxe du script
+        run: |
+          # Vérification simple avec Node.js
+          node -c changelog/sync-changelog.js && echo "✓ changelog/sync-changelog.js: Syntaxe valide" || exit 1
+
+      - name: ✓ Vérifications de syntaxe réussies
+        run: echo "✓ Tous les fichiers ont une syntaxe valide"

@@ -24,12 +24,12 @@
 // @require			https://cdn.jsdelivr.net/npm/@turf/turf@7/turf.min.js
 // @require         https://greasyfork.org/scripts/392436-wmestsdatas/code/WMESTSdatas.js
 // @supportURL      https://github.com/tunisiano187/WME-send-to-slack/issues
-// @contributionURL http://ko-fi.com/tunisiano
+// @contributionURL https://ko-fi.com/tunisiano
 // @grant           none
 // ==/UserScript==
 /* global W OpenLayers $ I18n WazeWrap*/
 
-// Updates informations
+// Change Log
 const _WHATS_NEW_LIST = Object.freeze({ // New in this version
     '2021.01.07.01': 'Solve closure tab problem',
     '2021.01.20.01': 'Telegram for Colombia',
@@ -182,13 +182,7 @@ async function init() {
     log("WazeWrap used for alerts it's still loading so we'll wait");
     return;
     }
-    // Since Dec 17, 2025 the initialization of toastr is broken
-    // as a workaround toastr is loaded from cdn.jsdelivr.net until WazeWrap.lib.js is fixed
-    if (typeof wazedevtoastr === 'undefined') {
-        await initializeToastrFromHere();
-    }
-    //
-    (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your TM settings... Unable to check for script updates'):undefined
+    (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your Tampermonkey settings... Unable to check for script updates'):undefined
     //Settings Tab
     wmeSDK_STS.Sidebar.registerScriptTab()
         .then((RegisterSidebarTabResult)=>{
@@ -274,7 +268,7 @@ async function init() {
 
 // Functions used by the Script
 
-/**Make HTTP Requests with Tampermonkey  Avoids clonflicts with CSP policy and other but debugging must be from Tampermonkey VM.
+/**Make HTTP Requests with Tampermonkey Avoids clonflicts with CSP policy and other but debugging must be from Tampermonkey VM.
  * Requests don't pass through WME console window but Tampermonkey extension console window.
  * Since Waze Staff stated that added all the required domains to the CSP policy this should not be required anymore.  
  * Till version `2024.10.20.01` being called from {@link localization()}
@@ -641,7 +635,7 @@ function construct(iconAction) {
                     log("Editor Level check triggered, user decided to continue anyway.")
                     reason = AskReason();
                 }
-            } else {// ask always for reason to get a chance to abort
+            } else {// always ask for a reason to get a chance to abort
                 log("Editor Level checked, ask.")
                 reason = AskReason();
             }
@@ -870,7 +864,6 @@ ${closureTelegramDetails}${telegramDetails}`;
         }
     });
 }
-
 
 /**Prepare the role of the icons.  
  * Checks for the WMESTS buttons (Lock/Unlock/Validation/Closures) clicks and Calls for {@link iconActionHandler()}.
