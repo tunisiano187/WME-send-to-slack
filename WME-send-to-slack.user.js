@@ -178,14 +178,19 @@ const EDITOR_ICONS = Object.freeze({
 async function init() {
     log('WME chargé');
     if (!WazeWrap?.Ready) {
-    setTimeout(init, 800);
-    log("WazeWrap used for alerts it's still loading so we'll wait");
-    return;
+        setTimeout(init, 800);
+        log("WazeWrap used for alerts it's still loading so we'll wait");
+        return;
     }
-    (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your Tampermonkey settings... Unable to check for script updates'):undefined
+    // Since Dec 17, 2025 the initialization of toastr is broken
+    // as a workaround toastr is loaded from cdn.jsdelivr.net until WazeWrap.lib.js is fixed
+    if (typeof wazedevtoastr === 'undefined') {
+        await initializeToastrFromHere();
+    }
+    //    (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your Tampermonkey settings... Unable to check for script updates'):undefined
     //Settings Tab
     wmeSDK_STS.Sidebar.registerScriptTab()
-        .then((RegisterSidebarTabResult)=>{
+        .then((RegisterSidebarTabResult) => {
             const { tabLabel, tabPane } = RegisterSidebarTabResult;
             tabLabel.innerHTML = SETTINGS_ICON;
             tabLabel.title = SCRIPT_NAME;
