@@ -187,7 +187,8 @@ async function init() {
     if (typeof wazedevtoastr === 'undefined') {
         await initializeToastrFromHere();
     }
-    //    (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your Tampermonkey settings... Unable to check for script updates'):undefined
+    //
+    (!GM_info.scriptWillUpdate || !GM_info.script.options.check_for_updates) ? WazeWrap.Alerts.error(SCRIPT_NAME, 'Check your Tampermonkey settings... Unable to check for script updates'):undefined
     //Settings Tab
     wmeSDK_STS.Sidebar.registerScriptTab()
         .then((RegisterSidebarTabResult) => {
