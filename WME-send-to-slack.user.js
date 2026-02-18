@@ -1936,18 +1936,15 @@ function findNearbySegment(feature, ignoreSegmentWithoutStreetname, ignoreSegmen
 //            continue;
         let segmentCandidate = SegmentsOnScreen[s];
         let segmentType = segmentCandidate.roadType;
-/*        if (segmentType === 10 || segmentType === 16 || segmentType === 18 || segmentType === 19) // 10 PEDESTRIAN_BOARDWALK, 16 STAIRWAY, 18 RAILROAD, 19 RUNWAY_TAXIWAY
-            continue;
 
-        if (ignoreSegmentWithoutStreetname && segmentType === 20) // 20 PARKING_LOT_ROAD
+        if (segmentType === 5 ||  //  5 WALKING_TRAIL
+            segmentType === 10 || // 10 PEDESTRIAN_BOARDWALK
+            segmentType === 16 || // 16 STAIRWAY
+            segmentType === 18 || // 18 RAILROAD
+            segmentType === 19) {  // 19 RUNWAY_TAXIWAY
             continue;
-
-            if (ignoreSegmentWithoutCityname) { // 17 PRIVATE_ROAD
-            let streetName = wmeSDK_STS.DataModel.Streets.getById({streetId: segmentCandidate.primaryStreetId})?.name;
-            if (streetName === null || streetName == "") // segment without streetname
-                continue;
         }
-*/
+
         if (ignoreSegmentWithoutStreetname) {
             let streetName = wmeSDK_STS.DataModel.Streets.getById({streetId: segmentCandidate.primaryStreetId})?.name;
             if (streetName === null || streetName == "") // segment without streetname
