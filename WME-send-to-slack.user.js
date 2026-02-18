@@ -1911,12 +1911,18 @@ function createNodeFromHTML(htmlString) {
 function findNearbySegment(feature, ignoreSegmentWithoutStreetname, ignoreSegmentWithoutCityname) {
     let featureLocation = [];
     if (feature.geometry?.hasOwnProperty('coordinates')) {
-            featureLocation = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
+        featureLocation = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
     } else if (feature.hasOwnProperty('bbox')) {
         featureLocation = turf.point([feature.bbox[0], feature.bbox[1]]);
     } else if (feature.type === "venue") {
         feature = wmeSDK_STS.DataModel.Venues.getById({ venueId: feature.attributes.id });
-        featureLocation = turf.point([feature.geometry.coordinates[0][0][0], feature.geometry.coordinates[0][0][1]]);
+
+        if (feature.geometry.type === "Point") {
+            featureLocation = turf.point([feature.geometry.coordinates[0], feature.geometry.coordinates[1]]);
+        } else {
+            // feature.geometry.type === "Polygon"
+            featureLocation = turf.point([feature.geometry.coordinates[0][0][0], feature.geometry.coordinates[0][0][1]]);
+        }
     }
     let SegmentsOnScreen = wmeSDK_STS.DataModel.Segments.getAll();
     let minDistance = Infinity;
@@ -1942,6 +1948,11 @@ function findNearbySegment(feature, ignoreSegmentWithoutStreetname, ignoreSegmen
             segmentType === 16 || // 16 STAIRWAY
             segmentType === 18 || // 18 RAILROAD
             segmentType === 19) {  // 19 RUNWAY_TAXIWAY
+            continue;
+        }
+
+        // Leave loop if segmentCandidate's address had never been entered
+        if (!segmentCandidate.hasOwnProperty('primaryStreetId')) {
             continue;
         }
 
