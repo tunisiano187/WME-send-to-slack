@@ -1,0 +1,56 @@
+﻿name: Deploy to GitHub Pages
+
+on:
+  push:
+    branches: [ master ]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+
+      - name: Create public/script directory
+        run: mkdir -p public/script
+
+      - name: Copy user.js files
+        run: cp *.user.js public/script/
+
+      - name: Update version in index.html
+        run: |
+          version=$(grep '@version' public/script/WME-send-to-slack.user.js | tail -c 14 | cut -c-13)
+          sed -i "s/.version./$version/g" public/index.html
+
+      - name: Count features
+        id: count
+        run: |
+          count=$(grep '<li>' public/features.html | wc -l)
+          echo "count=$count" >> $GITHUB_OUTPUT
+
+      - name: Update features image
+        run: |
+          sed -i "s/requested-*-success.svg/requested-${{ steps.count.outputs.count }}-success.svg/g" public/index.html
+
+      - name: Download latest script
+        run: wget https://purge.jsdelivr.net/gh/tunisiano187/WME-send-to-slack/WME-send-to-slack.user.js -O public/script/WME-send-to-slack.user.js
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./public
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
